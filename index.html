@@ -24,7 +24,16 @@
         <option value="actual">Actual</option>
       </select>
     </label><br />
-    <button onclick="calculate()">คำนวณ</button>
+    
+  <div id="actualInputs" style="display:none; margin-top: 10px;">
+    <label>ค่าแรง (บาท): <input type="number" id="inputLabor" /></label><br />
+    <label>วัสดุสิ้นเปลือง (บาท): <input type="number" id="inputMaterial" /></label><br />
+    <label>อุปกรณ์ช่วย (บาท): <input type="number" id="inputEquipment" /></label><br />
+    <label>Overhead (บาท): <input type="number" id="inputOverhead" /></label><br />
+    <label>กำไร (บาท): <input type="number" id="inputProfit" /></label><br />
+  </div>
+  <button onclick="calculate()">บันทึกโครงการ</button>
+  
     <button onclick="downloadCSV()">ดาวน์โหลดเป็น CSV</button>
 
     <div id="result" class="result" style="display:none;">
