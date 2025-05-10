@@ -1,127 +1,113 @@
+// main.js
 
 document.addEventListener("DOMContentLoaded", () => {
-    const calculateBtn = document.getElementById("calculateBtn");
-    const projectNameInput = document.getElementById("projectName");
-    const projectValueInput = document.getElementById("projectValue");
-    const resultDiv = document.getElementById("result");
-    const historyTable = document.getElementById("historyTable").querySelector("tbody");
+  const projectNameInput = document.getElementById("projectName");
+  const projectValueInput = document.getElementById("projectValue");
+  const resultDiv = document.getElementById("result");
+  const historyTableBody = document.querySelector("#historyTable tbody");
+  const summaryDiv = document.getElementById("summary");
 
-    function format(num) {
-        return Number(num).toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+  function format(number) {
+    return number.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
 
-    function loadHistory() {
-        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-        historyTable.innerHTML = "";
-        data.forEach((item, index) => {
-            const row1 = historyTable.insertRow();
-            row1.innerHTML = `
-                <td rowspan="2">${item.name}</td>
-                <td>${format(item.labor)}</td>
-                <td>${format(item.material)}</td>
-                <td>${format(item.equipment)}</td>
-                <td>${format(item.overhead)}</td>
-                <td>${format(item.profit)}</td>
-                <td rowspan="2"><button onclick="deleteProject(${index})">ลบ</button></td>
-            `;
-
-            const row2 = historyTable.insertRow();
-            row2.innerHTML = `
-                <td><input type="number" value="${item.actual?.labor || ''}" onchange="updateActual(${index}, 'labor', this.value)"></td>
-                <td><input type="number" value="${item.actual?.material || ''}" onchange="updateActual(${index}, 'material', this.value)"></td>
-                <td><input type="number" value="${item.actual?.equipment || ''}" onchange="updateActual(${index}, 'equipment', this.value)"></td>
-                <td><input type="number" value="${item.actual?.overhead || ''}" onchange="updateActual(${index}, 'overhead', this.value)"></td>
-                <td><input type="number" value="${item.actual?.profit || ''}" onchange="updateActual(${index}, 'profit', this.value)"></td>
-            `;
-        });
-    }
-
-    window.deleteProject = function(index) {
-        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-        data.splice(index, 1);
-        localStorage.setItem("projectHistory", JSON.stringify(data));
-        loadHistory();
+  function calculateBudget(value) {
+    return {
+      labor: value * 0.65,
+      material: value * 0.10,
+      equipment: value * 0.05,
+      overhead: value * 0.10,
+      profit: value * 0.10
     };
+  }
 
-    window.updateActual = function(index, field, value) {
-        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-        if (!data[index].actual) data[index].actual = {};
-        data[index].actual[field] = parseFloat(value) || 0;
-        localStorage.setItem("projectHistory", JSON.stringify(data));
-    };
+  function renderHistory() {
+    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+    historyTableBody.innerHTML = "";
 
-    calculateBtn.addEventListener("click", () => {
-        const name = projectNameInput.value.trim();
-        const value = parseFloat(projectValueInput.value);
-        if (!name || isNaN(value)) {
-            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-            return;
-        }
+    data.forEach((project, index) => {
+      const row1 = document.createElement("tr");
+      row1.innerHTML = `
+        <td rowspan="2">${project.name}</td>
+        <td>${format(project.budget.labor)}</td>
+        <td>${format(project.budget.material)}</td>
+        <td>${format(project.budget.equipment)}</td>
+        <td>${format(project.budget.overhead)}</td>
+        <td>${format(project.budget.profit)}</td>
+        <td rowspan="2"><button onclick="deleteProject(${index})">ลบ</button></td>
+      `;
+      historyTableBody.appendChild(row1);
 
-        const labor = value * 0.65;
-        const material = value * 0.10;
-        const equipment = value * 0.05;
-        const overhead = value * 0.10;
-        const profit = value * 0.10;
+      const actual = project.actual || { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
+      const row2 = document.createElement("tr");
+      row2.innerHTML = `
+        <td><input type="number" value="${actual.labor}" onchange="updateActual(${index}, 'labor', this.value)"></td>
+        <td><input type="number" value="${actual.material}" onchange="updateActual(${index}, 'material', this.value)"></td>
+        <td><input type="number" value="${actual.equipment}" onchange="updateActual(${index}, 'equipment', this.value)"></td>
+        <td><input type="number" value="${actual.overhead}" onchange="updateActual(${index}, 'overhead', this.value)"></td>
+        <td><input type="number" value="${actual.profit}" onchange="updateActual(${index}, 'profit', this.value)"></td>
+      `;
+      historyTableBody.appendChild(row2);
+    });
+  }
 
-        resultDiv.innerHTML = `
-            <p>ค่าแรง: ${format(labor)}</p>
-            <p>วัสดุสิ้นเปลือง: ${format(material)}</p>
-            <p>อุปกรณ์ช่วย: ${format(equipment)}</p>
-            <p>Overhead: ${format(overhead)}</p>
-            <p>กำไร: ${format(profit)}</p>
-        `;
+  function renderSummary() {
+    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+    let sum = { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
 
-        const history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-        history.push({ name, value, labor, material, equipment, overhead, profit });
-        localStorage.setItem("projectHistory", JSON.stringify(history));
-        loadHistory();
+    data.forEach(p => {
+      if (p.actual) {
+        sum.labor += p.actual.labor || 0;
+        sum.material += p.actual.material || 0;
+        sum.equipment += p.actual.equipment || 0;
+        sum.overhead += p.actual.overhead || 0;
+        sum.profit += p.actual.profit || 0;
+      }
     });
 
-    loadHistory();
-});
+    summaryDiv.innerHTML = `
+      <h3>ยอด Actual Cost สะสม</h3>
+      <p>ค่าแรง: ${format(sum.labor)}</p>
+      <p>วัสดุสิ้นเปลือง: ${format(sum.material)}</p>
+      <p>อุปกรณ์ช่วย: ${format(sum.equipment)}</p>
+      <p>Overhead: ${format(sum.overhead)}</p>
+      <p>กำไร: ${format(sum.profit)}</p>
+    `;
+  }
 
-    function sumActualCosts() {
-        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-        let sum = { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
+  document.getElementById("calculateBtn").addEventListener("click", () => {
+    const name = projectNameInput.value.trim();
+    const value = parseFloat(projectValueInput.value);
+    if (!name || isNaN(value)) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
 
-        data.forEach(item => {
-            if (item.actual) {
-                sum.labor += item.actual.labor || 0;
-                sum.material += item.actual.material || 0;
-                sum.equipment += item.actual.equipment || 0;
-                sum.overhead += item.actual.overhead || 0;
-                sum.profit += item.actual.profit || 0;
-            }
-        });
+    const budget = calculateBudget(value);
 
-        const summaryDiv = document.getElementById("summary");
-        summaryDiv.innerHTML = `
-            <h3>ยอด Actual Cost สะสม</h3>
-            <p>ค่าแรง: ${format(sum.labor)}</p>
-            <p>วัสดุสิ้นเปลือง: ${format(sum.material)}</p>
-            <p>อุปกรณ์ช่วย: ${format(sum.equipment)}</p>
-            <p>Overhead: ${format(sum.overhead)}</p>
-            <p>กำไร: ${format(sum.profit)}</p>
-        `;
-    }
+    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+    data.push({ name, value, budget });
+    localStorage.setItem("projectHistory", JSON.stringify(data));
 
-    window.updateActual = function(index, field, value) {
-        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-        if (!data[index].actual) data[index].actual = {};
-        data[index].actual[field] = parseFloat(value) || 0;
-        localStorage.setItem("projectHistory", JSON.stringify(data));
-        sumActualCosts();
-    };
+    projectNameInput.value = "";
+    projectValueInput.value = "";
+    renderHistory();
+    renderSummary();
+  });
 
-    window.deleteProject = function(index) {
-        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-        data.splice(index, 1);
-        localStorage.setItem("projectHistory", JSON.stringify(data));
-        loadHistory();
-        sumActualCosts();
-    };
+  window.updateActual = function(index, field, value) {
+    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+    if (!data[index].actual) data[index].actual = {};
+    data[index].actual[field] = parseFloat(value) || 0;
+    localStorage.setItem("projectHistory", JSON.stringify(data));
+    renderSummary();
+  };
 
-    loadHistory();
-    sumActualCosts();
+  window.deleteProject = function(index) {
+    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+    data.splice(index, 1);
+    localStorage.setItem("projectHistory", JSON.stringify(data));
+    renderHistory();
+    renderSummary();
+  };
+
+  renderHistory();
+  renderSummary();
 });
