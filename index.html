@@ -1,72 +1,36 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ระบบงบประมาณโครงการ</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    input[type="text"], input[type="number"] { width: 100%; padding: 8px; margin: 6px 0 12px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
-    th { background: #007bff; color: white; }
-    button { padding: 10px 20px; margin-top: 10px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 4px; }
-    button:hover { background: #218838; }
-    h1, h2 { text-align: center; }
-    .history-item { background: #f9f9f9; border: 1px solid #ccc; padding: 10px; margin-top: 10px; border-radius: 6px; }
-  </style>
+    <meta charset="UTF-8">
+    <title>โครงการ</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>ระบบงบประมาณโครงการ</h1>
-    <label>ชื่อโครงการ <input type="text" id="projectName" /></label>
-    <label>มูลค่าโครงการ (บาท) <input type="number" id="projectValue" /></label>
+    <h1>ข้อมูลโครงการ</h1>
+    <label>ชื่อโครงการ: <input type="text" id="projectName"></label><br>
+    <label>มูลค่าโครงการ: <input type="number" id="projectValue" step="0.01"></label><br>
     <button id="calculateBtn">คำนวณ</button>
 
-    <div id="result" style="display:none;">
-      <h2>งบประมาณและค่าใช้จ่ายจริง</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>รายการ</th>
-            <th>งบประมาณ (บาท)</th>
-            <th>Actual (บาท)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>ค่าแรง (65%)</td><td id="budgetLabor"></td><td><input type="number" id="actualLabor"></td></tr>
-          <tr><td>วัสดุสิ้นเปลือง (10%)</td><td id="budgetMaterial"></td><td><input type="number" id="actualMaterial"></td></tr>
-          <tr><td>อุปกรณ์ช่วย (5%)</td><td id="budgetEquipment"></td><td><input type="number" id="actualEquipment"></td></tr>
-          <tr><td>Overhead (10%)</td><td id="budgetOverhead"></td><td><input type="number" id="actualOverhead"></td></tr>
-          <tr><td>กำไร (10%)</td><td id="budgetProfit"></td><td><input type="number" id="actualProfit"></td></tr>
-        </tbody>
-      </table>
-      <button onclick="saveProject()">บันทึกโครงการ</button>
-    </div>
+    <h2>สรุปงบประมาณ</h2>
+    <div id="result"></div>
 
     <h2>ประวัติโครงการ</h2>
-    
-    <div id="history"></div>
-    <h2>สรุปยอดสะสม (Actual)</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>รายการ</th>
-          <th>ยอดสะสม (บาท)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>ค่าแรง</td><td id="totalLabor">0.00</td></tr>
-        <tr><td>วัสดุสิ้นเปลือง</td><td id="totalMaterial">0.00</td></tr>
-        <tr><td>อุปกรณ์ช่วย</td><td id="totalEquipment">0.00</td></tr>
-        <tr><td>Overhead</td><td id="totalOverhead">0.00</td></tr>
-        <tr><td>กำไร</td><td id="totalProfit">0.00</td></tr>
-      </tbody>
+    <table id="historyTable" border="1">
+        <thead>
+            <tr>
+                <th>ชื่อโครงการ</th>
+                <th>มูลค่า</th>
+                <th>ค่าแรง</th>
+                <th>วัสดุ</th>
+                <th>อุปกรณ์</th>
+                <th>Overhead</th>
+                <th>กำไร</th>
+                <th>ลบ</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
     </table>
-    
-  </div>
 
-  <script src="main.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>

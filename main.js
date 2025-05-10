@@ -1,100 +1,67 @@
 
-function formatNumber(num) {
-  return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+document.addEventListener("DOMContentLoaded", () => {
+    const calculateBtn = document.getElementById("calculateBtn");
+    const projectNameInput = document.getElementById("projectName");
+    const projectValueInput = document.getElementById("projectValue");
+    const resultDiv = document.getElementById("result");
+    const historyTable = document.getElementById("historyTable").querySelector("tbody");
 
-function calculate() {
-  const value = parseFloat(document.getElementById("projectValue").value);
-  if (isNaN(value)) return;
+    function format(num) {
+        return Number(num).toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
-  document.getElementById("budgetLabor").innerText = formatNumber(value * 0.65);
-  document.getElementById("budgetMaterial").innerText = formatNumber(value * 0.10);
-  document.getElementById("budgetEquipment").innerText = formatNumber(value * 0.05);
-  document.getElementById("budgetOverhead").innerText = formatNumber(value * 0.10);
-  document.getElementById("budgetProfit").innerText = formatNumber(value * 0.10);
+    function loadHistory() {
+        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        historyTable.innerHTML = "";
+        data.forEach((item, index) => {
+            const row = historyTable.insertRow();
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${format(item.value)}</td>
+                <td>${format(item.labor)}</td>
+                <td>${format(item.material)}</td>
+                <td>${format(item.equipment)}</td>
+                <td>${format(item.overhead)}</td>
+                <td>${format(item.profit)}</td>
+                <td><button onclick="deleteProject(${index})">ลบ</button></td>
+            `;
+        });
+    }
 
-  document.getElementById("result").style.display = "block";
-}
+    window.deleteProject = function(index) {
+        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        data.splice(index, 1);
+        localStorage.setItem("projectHistory", JSON.stringify(data));
+        loadHistory();
+    };
 
-function saveProject() {
-  const name = document.getElementById("projectName").value;
-  const value = parseFloat(document.getElementById("projectValue").value);
+    calculateBtn.addEventListener("click", () => {
+        const name = projectNameInput.value.trim();
+        const value = parseFloat(projectValueInput.value);
+        if (!name || isNaN(value)) {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+            return;
+        }
 
-  const data = {
-    name,
-    value,
-    labor: parseFloat(document.getElementById("budgetLabor").innerText.replace(/,/g, "")),
-    material: parseFloat(document.getElementById("budgetMaterial").innerText.replace(/,/g, "")),
-    equipment: parseFloat(document.getElementById("budgetEquipment").innerText.replace(/,/g, "")),
-    overhead: parseFloat(document.getElementById("budgetOverhead").innerText.replace(/,/g, "")),
-    profit: parseFloat(document.getElementById("budgetProfit").innerText.replace(/,/g, "")),
-    actualLabor: parseFloat(document.getElementById("actualLabor").value) || 0,
-    actualMaterial: parseFloat(document.getElementById("actualMaterial").value) || 0,
-    actualEquipment: parseFloat(document.getElementById("actualEquipment").value) || 0,
-    actualOverhead: parseFloat(document.getElementById("actualOverhead").value) || 0,
-    actualProfit: parseFloat(document.getElementById("actualProfit").value) || 0
-  };
+        const labor = value * 0.65;
+        const material = value * 0.10;
+        const equipment = value * 0.05;
+        const overhead = value * 0.10;
+        const profit = value * 0.10;
 
-  let history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-  history.push(data);
-  localStorage.setItem("projectHistory", JSON.stringify(history));
-  renderHistory();
-}
+        resultDiv.innerHTML = `
+            <p>ค่าแรง: ${format(labor)}</p>
+            <p>วัสดุสิ้นเปลือง: ${format(material)}</p>
+            <p>อุปกรณ์ช่วย: ${format(equipment)}</p>
+            <p>Overhead: ${format(overhead)}</p>
+            <p>กำไร: ${format(profit)}</p>
+        `;
 
+        const history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        history.push({ name, value, labor, material, equipment, overhead, profit });
+        localStorage.setItem("projectHistory", JSON.stringify(history));
+        loadHistory();
+    });
 
-function renderHistory() {
-  updateSummary();
-
-  let history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-  const container = document.getElementById("history");
-  container.innerHTML = "";
-  history.forEach((p, index) => {
-    const div = document.createElement("div");
-    div.className = "history-item";
-    table += `<tr><td>${formatNumber(p.actualLabor)}</td><td>${formatNumber(p.actualMaterial)}</td><td>${formatNumber(p.actualEquipment)}</td><td>${formatNumber(p.actualOverhead)}</td><td>${formatNumber(p.actualProfit)}</td><td><button onclick='deleteProject(${index})' style='background:#dc3545;'>ลบ</button></td></tr>`;<button onclick='deleteProject(${index})' style='float:right;background:#dc3545;'>ลบ</button>
-      <strong>${p.name}</strong><br/>
-      มูลค่า: ${formatNumber(p.value)} บาท<br/>
-      <u>งบประมาณ:</u><br/>
-      - ค่าแรง: ${formatNumber(p.labor)}<br/>
-      - วัสดุ: ${formatNumber(p.material)}<br/>
-      - อุปกรณ์: ${formatNumber(p.equipment)}<br/>
-      - Overhead: ${formatNumber(p.overhead)}<br/>
-      - กำไร: ${formatNumber(p.profit)}<br/>
-      <u>Actual:</u><br/>
-      - ค่าแรง: ${formatNumber(p.actualLabor)}<br/>
-      - วัสดุ: ${formatNumber(p.actualMaterial)}<br/>
-      - อุปกรณ์: ${formatNumber(p.actualEquipment)}<br/>
-      - Overhead: ${formatNumber(p.actualOverhead)}<br/>
-      - กำไร: ${formatNumber(p.actualProfit)}<br/>
-    `;
-    container.appendChild(div);
-  });
-}
-
-window.onload = renderHistory;
-
-function updateSummary() {
-  let history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-  let totalLabor = 0, totalMaterial = 0, totalEquipment = 0, totalOverhead = 0, totalProfit = 0;
-  history.forEach((p, index) => {
-    totalLabor += p.actualLabor || 0;
-    totalMaterial += p.actualMaterial || 0;
-    totalEquipment += p.actualEquipment || 0;
-    totalOverhead += p.actualOverhead || 0;
-    totalProfit += p.actualProfit || 0;
-  });
-  document.getElementById("totalLabor").innerText = formatNumber(totalLabor);
-  document.getElementById("totalMaterial").innerText = formatNumber(totalMaterial);
-  document.getElementById("totalEquipment").innerText = formatNumber(totalEquipment);
-  document.getElementById("totalOverhead").innerText = formatNumber(totalOverhead);
-  document.getElementById("totalProfit").innerText = formatNumber(totalProfit);
-}
-
-function deleteProject(index) {
-  let history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-  if (index >= 0 && index < history.length) {
-    history.splice(index, 1);
-    localStorage.setItem("projectHistory", JSON.stringify(history));
-    renderHistory();
-  }
-}
+    loadHistory();
+});
