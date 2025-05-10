@@ -51,7 +51,7 @@ function renderHistory() {
   history.forEach((p, index) => {
     const div = document.createElement("div");
     div.className = "history-item";
-    table += `<tr><td>${p.name}</td><td>${formatNumber(p.value)}</td><td>${formatNumber(p.actualLabor)}</td><td>${formatNumber(p.actualMaterial)}</td><td>${formatNumber(p.actualEquipment)}</td><td>${formatNumber(p.actualOverhead)}</td><td>${formatNumber(p.actualProfit)}</td><td><button onclick='deleteProject(${index})' style='background:#dc3545;'>ลบ</button></td></tr>`;<button onclick='deleteProject(${index})' style='float:right;background:#dc3545;'>ลบ</button>
+    table += `<tr><td>${formatNumber(p.actualLabor)}</td><td>${formatNumber(p.actualMaterial)}</td><td>${formatNumber(p.actualEquipment)}</td><td>${formatNumber(p.actualOverhead)}</td><td>${formatNumber(p.actualProfit)}</td><td><button onclick='deleteProject(${index})' style='background:#dc3545;'>ลบ</button></td></tr>`;<button onclick='deleteProject(${index})' style='float:right;background:#dc3545;'>ลบ</button>
       <strong>${p.name}</strong><br/>
       มูลค่า: ${formatNumber(p.value)} บาท<br/>
       <u>งบประมาณ:</u><br/>
