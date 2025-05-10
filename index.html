@@ -1,71 +1,21 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Project Management</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .table-container {
-            overflow-x: auto;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            min-width: 1000px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: center;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        input[type="text"], input[type="number"] {
-            width: 90px;
-        }
-        button {
-            padding: 4px 10px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Management</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h2>Project Management</h2>
-    <div>
-        Project Name: <input type="text" id="projectName" />
-        Project Value: <input type="number" id="projectValue" />
-        <button onclick="calculate()">Calculate</button>
-        <button onclick="exportCSV()">Export CSV</button>
-        <input type="text" id="searchBox" placeholder="Search project..." />
-    </div>
-    <h3>Budget Summary</h3>
-    <div id="summary"></div>
-    <h3>Actual Cost Summary</h3>
-    <div id="actualSummary"></div>
-
-    <h3>Project History</h3>
-    <div class="table-container">
-        <table id="projectTable">
-            <thead>
-                <tr>
-                    <th rowspan="2">Project Name</th>
-                    <th colspan="5">Budget</th>
-                    <th colspan="5">Actual</th>
-                    <th rowspan="2">Delete</th>
-                </tr>
-                <tr>
-                    <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
-                    <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
-                </tr>
-            </thead>
-            <tbody id="projectList"></tbody>
-        </table>
-    </div>
-
-    <script src="main.js"></script>
+  <h1>Project Management</h1>
+  <label>Project Name: <input id="projectName" type="text"></label>
+  <label>Project Value: <input id="projectValue" type="number"></label>
+  <button id="calculateBtn">Calculate</button>
+  <div>
+    <h2>Actual Cost Summary</h2>
+    <canvas id="actualChart" width="300" height="200"></canvas>
+  </div>
+  <script src="main.js"></script>
 </body>
 </html>
