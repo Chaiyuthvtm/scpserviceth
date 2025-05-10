@@ -1,168 +1,51 @@
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>รายงานสรุปผลค่าใช้จ่ายโครงการ</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>สรุปผลค่าใช้จ่ายโครงการ</title>
+  <link rel="stylesheet" href="style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 2em;
-      background-color: #f9f9f9;
-    }
-    h1, h2 {
-      color: #333;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1em;
-    }
-    th, td {
-      border: 1px solid #999;
-      padding: 0.5em;
-      text-align: right;
-    }
-    th {
-      background-color: #eee;
-    }
-    .highlight-red {
-      color: red;
-      font-weight: bold;
-    }
-    .highlight-green {
-      color: green;
-      font-weight: bold;
-    }
-    canvas {
-      margin-top: 2em;
-    }
-  </style>
 </head>
 <body>
-  <h1>รายงานสรุปผลค่าใช้จ่ายที่เกิดขึ้นจริง</h1>
+  <div class="container">
+    <h1>สรุปผลค่าใช้จ่ายโครงการ</h1>
+    <div class="form-group">
+      <label>ชื่อโครงการ:</label>
+      <input type="text" id="projectName" />
+      <label>มูลค่าโครงการ (บาท):</label>
+      <input type="number" id="projectValue" />
+      <button onclick="calculateBudget()">คำนวณงบประมาณ</button>
+    </div>
 
-  <h2>ตารางเปรียบเทียบ Budget vs Actual</h2>
-  <table id="summaryTable">
-    <thead>
-      <tr>
-        <th>หมวด</th>
-        <th>งบประมาณ (Budget)</th>
-        <th>ใช้จริง (Actual)</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>ค่าแรง</td>
-        <td id="budget-labor">0</td>
-        <td id="actual-labor">0</td>
-      </tr>
-      <tr>
-        <td>วัสดุสิ้นเปลือง</td>
-        <td id="budget-material">0</td>
-        <td id="actual-material">0</td>
-      </tr>
-      <tr>
-        <td>อุปกรณ์ช่วย</td>
-        <td id="budget-equip">0</td>
-        <td id="actual-equip">0</td>
-      </tr>
-      <tr>
-        <td>Overhead</td>
-        <td id="budget-overhead">0</td>
-        <td id="actual-overhead">0</td>
-      </tr>
-      <tr>
-        <td>กำไร</td>
-        <td id="budget-profit">0</td>
-        <td id="actual-profit">0</td>
-      </tr>
-      <tr>
-        <th>รวมทั้งหมด</th>
-        <th id="budget-total">0</th>
-        <th id="actual-total">0</th>
-      </tr>
-    </tbody>
-  </table>
+    <div id="budgetSection" style="display:none;">
+      <h2>งบประมาณโครงการ (คำนวณจากสูตร)</h2>
+      <ul id="budgetList"></ul>
 
-  <canvas id="comparisonChart" width="600" height="300"></canvas>
+      <h2>กรอกค่าใช้จ่ายจริง (Actual)</h2>
+      <label>ค่าแรง:</label><input type="number" id="actualLabor" /><br/>
+      <label>วัสดุสิ้นเปลือง:</label><input type="number" id="actualMaterial" /><br/>
+      <label>อุปกรณ์ช่วย:</label><input type="number" id="actualEquip" /><br/>
+      <label>Overhead:</label><input type="number" id="actualOverhead" /><br/>
+      <label>กำไร:</label><input type="number" id="actualProfit" /><br/>
+      <button onclick="showSummary()">แสดงรายงานสรุป</button>
+    </div>
 
-  <script>
-    const budgetData = {
-      labor: 650000,
-      material: 100000,
-      equip: 50000,
-      overhead: 100000,
-      profit: 100000
-    };
-
-    const actualData = {
-      labor: 600000,
-      material: 95000,
-      equip: 60000,
-      overhead: 120000,
-      profit: 95000
-    };
-
-    function updateSummary() {
-      let totalBudget = 0, totalActual = 0;
-
-      for (const key in budgetData) {
-        const budgetCell = document.getElementById('budget-' + key);
-        const actualCell = document.getElementById('actual-' + key);
-        const budgetVal = budgetData[key];
-        const actualVal = actualData[key];
-
-        budgetCell.textContent = budgetVal.toLocaleString('th-TH', { minimumFractionDigits: 2 });
-        actualCell.textContent = actualVal.toLocaleString('th-TH', { minimumFractionDigits: 2 });
-
-        if (actualVal > budgetVal) {
-          actualCell.className = "highlight-red";
-        } else {
-          actualCell.className = "highlight-green";
-        }
-
-        totalBudget += budgetVal;
-        totalActual += actualVal;
-      }
-
-      document.getElementById('budget-total').textContent = totalBudget.toLocaleString('th-TH', { minimumFractionDigits: 2 });
-      document.getElementById('actual-total').textContent = totalActual.toLocaleString('th-TH', { minimumFractionDigits: 2 });
-      document.getElementById('actual-total').className = totalActual > totalBudget ? "highlight-red" : "highlight-green";
-    }
-
-    function renderChart() {
-      new Chart(document.getElementById('comparisonChart'), {
-        type: 'bar',
-        data: {
-          labels: ['Labor', 'Material', 'Equip', 'Overhead', 'Profit'],
-          datasets: [
-            {
-              label: 'Budget',
-              data: Object.values(budgetData),
-              backgroundColor: '#4caf50'
-            },
-            {
-              label: 'Actual',
-              data: Object.values(actualData),
-              backgroundColor: '#f44336'
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      });
-    }
-
-    updateSummary();
-    renderChart();
-  </script>
+    <div id="summarySection" style="display:none;">
+      <h2>รายงานสรุป</h2>
+      <table id="summaryTable" border="1">
+        <thead>
+          <tr>
+            <th>หมวด</th><th>งบประมาณ</th><th>ค่าใช้จ่ายจริง</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+      <canvas id="summaryChart" width="400" height="200"></canvas>
+    </div>
+  </div>
+  <script src="main.js"></script>
 </body>
 </html>
