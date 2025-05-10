@@ -1,44 +1,61 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ระบบบริหารจัดการงบประมาณโครงการ</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบติดตามค่าใช้จ่ายโครงการ</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>ระบบบริหารจัดการงบประมาณโครงการ</h1>
+    <h1>ระบบติดตามค่าใช้จ่ายโครงการ</h1>
+
+    <!-- ส่วนที่ 1: กรอกข้อมูล -->
     <div class="form-group">
       <label>ชื่อโครงการ</label>
       <input type="text" id="projectName">
       <label>มูลค่าโครงการ</label>
       <input type="number" id="projectValue">
-      <button onclick="calculateBudget()">คำนวณ</button>
+      <button onclick="calculateBudget()">คำนวณงบประมาณ</button>
     </div>
+
+    <!-- ส่วนที่ 2: แสดงผลการคำนวณและกรอกข้อมูล Actual -->
+    <div id="budgetResult">
+      <h2>งบประมาณ</h2>
+      <ul id="budgetList"></ul>
+      <h2>ค่าใช้จ่ายจริง (Actual)</h2>
+      <input type="number" id="actualLabor" placeholder="ค่าแรง">
+      <input type="number" id="actualMaterial" placeholder="วัสดุสิ้นเปลือง">
+      <input type="number" id="actualEquip" placeholder="อุปกรณ์ช่วย">
+      <input type="number" id="actualOverhead" placeholder="Overhead">
+      <input type="number" id="actualProfit" placeholder="กำไร">
+      <button onclick="saveProject()">บันทึกโครงการ</button>
+    </div>
+
+    <!-- ส่วนที่ 3: รายงานสรุป -->
+    <div id="summaryReport">
+      <h2>สรุปยอดสะสม</h2>
+      <canvas id="summaryChart" width="400" height="200"></canvas>
+      <button onclick="exportToPDF()">ส่งออกเป็น PDF</button>
+      <button onclick="exportToCSV()">ส่งออกเป็น CSV</button>
+    </div>
+
+    <!-- ตารางประวัติโครงการ -->
     <h2>ประวัติโครงการ</h2>
-    <table id="projectTable">
+    <table id="projectHistory">
       <thead>
         <tr>
           <th>ชื่อโครงการ</th>
-          <th colspan="5">งบประมาณ</th>
-          <th colspan="5">ค่าใช้จ่ายจริง (Actual)</th>
-          <th>ลบ</th>
-        </tr>
-        <tr>
-          <th></th>
-          <th>แรงงาน</th><th>วัสดุ</th><th>อุปกรณ์</th><th>Overhead</th><th>กำไร</th>
-          <th>แรงงาน</th><th>วัสดุ</th><th>อุปกรณ์</th><th>Overhead</th><th>กำไร</th>
-          <th></th>
+          <th>Budget</th>
+          <th>Actual</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody id="projectTableBody"></tbody>
     </table>
-    <h2>รายงานสรุป</h2>
-    <div id="summaryReport"></div>
-    <canvas id="comparisonChart" width="400" height="200"></canvas>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
