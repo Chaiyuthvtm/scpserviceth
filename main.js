@@ -1,100 +1,92 @@
 
+let projects = [];
+
 function calculateBudget() {
-  const name = document.getElementById("projectName").value;
-  const value = parseFloat(document.getElementById("projectValue").value);
+    const name = document.getElementById('projectName').value;
+    const value = parseFloat(document.getElementById('projectValue').value);
+    if (!name || isNaN(value)) return alert('กรุณากรอกข้อมูลให้ครบ');
 
-  if (!name || isNaN(value)) {
-    alert("กรุณากรอกชื่อโครงการและมูลค่าให้ครบ");
-    return;
-  }
+    const budget = {
+        labor: value * 0.65,
+        material: value * 0.10,
+        equipment: value * 0.05,
+        overhead: value * 0.10,
+        profit: value * 0.10,
+    };
 
-  const budget = {
-    labor: value * 0.65,
-    material: value * 0.10,
-    equip: value * 0.05,
-    overhead: value * 0.10,
-    profit: value * 0.10
-  };
+    const actual = {
+        labor: 0,
+        material: 0,
+        equipment: 0,
+        overhead: 0,
+        profit: 0,
+    };
 
-  let list = document.getElementById("budgetList");
-  list.innerHTML = `
-    <li>ค่าแรง: ${budget.labor.toFixed(2)} บาท</li>
-    <li>วัสดุสิ้นเปลือง: ${budget.material.toFixed(2)} บาท</li>
-    <li>อุปกรณ์ช่วย: ${budget.equip.toFixed(2)} บาท</li>
-    <li>Overhead: ${budget.overhead.toFixed(2)} บาท</li>
-    <li>กำไร: ${budget.profit.toFixed(2)} บาท</li>
-  `;
-
-  document.getElementById("budgetSection").style.display = "block";
-  window.currentBudget = budget;
+    const project = { name, value, budget, actual };
+    projects.push(project);
+    updateActualInputs(projects.length - 1);
+    renderHistory();
+    renderSummary();
 }
 
-function showSummary() {
-  const actual = {
-    labor: parseFloat(document.getElementById("actualLabor").value),
-    material: parseFloat(document.getElementById("actualMaterial").value),
-    equip: parseFloat(document.getElementById("actualEquip").value),
-    overhead: parseFloat(document.getElementById("actualOverhead").value),
-    profit: parseFloat(document.getElementById("actualProfit").value)
-  };
+function updateActualInputs(index) {
+    const container = document.getElementById('actualInputs');
+    container.innerHTML = '';
+    ['labor', 'material', 'equipment', 'overhead', 'profit'].forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.placeholder = 'Actual ' + key;
+        input.onchange = (e) => {
+            projects[index].actual[key] = parseFloat(e.target.value) || 0;
+            renderHistory();
+            renderSummary();
+        };
+        container.appendChild(input);
+    });
+}
 
-  const budget = window.currentBudget;
-  const tbody = document.querySelector("#summaryTable tbody");
-  const tfoot = document.querySelector("#summaryTable tfoot");
-  tbody.innerHTML = "";
-  tfoot.innerHTML = "";
+function renderHistory() {
+    const history = document.getElementById('projectHistory');
+    history.innerHTML = '';
+    projects.forEach((proj, i) => {
+        let table = '<table><thead><tr><th>ชื่อโครงการ</th><th>ประเภท</th><th>ค่าแรง</th><th>วัสดุ</th><th>อุปกรณ์</th><th>Overhead</th><th>กำไร</th><th>รวม</th><th>ลบ</th></tr></thead><tbody>';
+        const budgetTotal = Object.values(proj.budget).reduce((a, b) => a + b, 0);
+        const actualTotal = Object.values(proj.actual).reduce((a, b) => a + b, 0);
+        table += `<tr><td rowspan="2">${proj.name}</td><td>งบประมาณ</td>` +
+                 ['labor','material','equipment','overhead','profit'].map(k => `<td>${proj.budget[k].toFixed(2)}</td>`).join('') +
+                 `<td>${budgetTotal.toFixed(2)}</td><td rowspan="2"><button onclick="deleteProject(${i})">ลบ</button></td></tr>`;
+        table += `<tr><td>ค่าใช้จ่ายจริง</td>` +
+                 ['labor','material','equipment','overhead','profit'].map(k => {
+                    const color = proj.actual[k] > proj.budget[k] ? 'style="color:red"' : '';
+                    return `<td ${color}>${proj.actual[k].toFixed(2)}</td>`;
+                 }).join('') + `<td>${actualTotal.toFixed(2)}</td></tr>`;
+        table += '</tbody></table>';
+        history.innerHTML += table;
+    });
+}
 
-  let sumBudget = 0, sumActual = 0;
+function deleteProject(index) {
+    projects.splice(index, 1);
+    renderHistory();
+    renderSummary();
+}
 
-  for (let key in budget) {
-    const row = document.createElement("tr");
-    const over = actual[key] > budget[key];
-    const cssClass = over ? "over" : "under";
-    sumBudget += budget[key];
-    sumActual += actual[key];
-    row.innerHTML = `
-      <td>${key.charAt(0).toUpperCase() + key.slice(1)}</td>
-      <td>${budget[key].toFixed(2)}</td>
-      <td class="${cssClass}">${actual[key].toFixed(2)}</td>
+function renderSummary() {
+    const sum = { budget: 0, actual: 0 };
+    projects.forEach(p => {
+        sum.budget += Object.values(p.budget).reduce((a,b) => a+b, 0);
+        sum.actual += Object.values(p.actual).reduce((a,b) => a+b, 0);
+    });
+
+    const report = document.getElementById('summaryReport');
+    const color = sum.actual > sum.budget ? 'negative' : 'positive';
+    report.innerHTML = `
+        <table>
+            <thead><tr><th>รวมงบประมาณ</th><th>รวมค่าใช้จ่ายจริง</th></tr></thead>
+            <tbody><tr>
+                <td>${sum.budget.toFixed(2)}</td>
+                <td class="${color}">${sum.actual.toFixed(2)}</td>
+            </tr></tbody>
+        </table>
     `;
-    tbody.appendChild(row);
-  }
-
-  const totalRow = document.createElement("tr");
-  const totalClass = sumActual > sumBudget ? "over" : "under";
-  totalRow.innerHTML = `
-    <th>รวม</th>
-    <th>${sumBudget.toFixed(2)}</th>
-    <th class="${totalClass}">${sumActual.toFixed(2)}</th>
-  `;
-  tfoot.appendChild(totalRow);
-
-  document.getElementById("summarySection").style.display = "block";
-
-  const ctx = document.getElementById("summaryChart").getContext("2d");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: ["Labor", "Material", "Equip", "Overhead", "Profit", "รวม"],
-      datasets: [
-        {
-          label: "งบประมาณ",
-          data: [budget.labor, budget.material, budget.equip, budget.overhead, budget.profit, sumBudget],
-          backgroundColor: "#36A2EB"
-        },
-        {
-          label: "Actual",
-          data: [actual.labor, actual.material, actual.equip, actual.overhead, actual.profit, sumActual],
-          backgroundColor: "#FF6384"
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: "top" },
-        title: { display: true, text: "เปรียบเทียบงบประมาณและค่าใช้จ่ายจริง" }
-      }
-    }
-  });
 }

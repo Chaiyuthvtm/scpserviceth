@@ -2,136 +2,37 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ระบบบริหารจัดการงบประมาณโครงการ</title>
-  <link rel="stylesheet" href="style.css"/>
+    <meta charset="UTF-8">
+    <title>ระบบสรุปค่าใช้จ่ายโครงการ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>ระบบบริหารจัดการงบประมาณโครงการ</h1>
+    <div class="container">
+        <h1>ระบบจัดการค่าใช้จ่ายโครงการ</h1>
+        <section id="input-section">
+            <h2>1. กรอกข้อมูลโครงการ</h2>
+            <input type="text" id="projectName" placeholder="ชื่อโครงการ">
+            <input type="number" id="projectValue" placeholder="มูลค่าโครงการ">
+            <button onclick="calculateBudget()">คำนวณงบประมาณ</button>
+        </section>
 
-    <!-- ส่วนที่ 1 -->
-    <div class="form-section">
-      <h2>กรอกข้อมูลโครงการ</h2>
-      <label>ชื่อโครงการ: <input type="text" id="projectName"></label>
-      <label>มูลค่าโครงการ: <input type="number" id="projectValue"></label>
-      <button onclick="calculateBudget()">คำนวณ</button>
+        <section id="actual-section">
+            <h2>2. กรอกข้อมูลค่าใช้จ่ายจริง (Actual)</h2>
+            <div id="actualInputs"></div>
+        </section>
+
+        <section id="history-section">
+            <h2>4. ประวัติโครงการ</h2>
+            <div id="projectHistory"></div>
+        </section>
+
+        <section id="summary-section">
+            <h2>5. รายงานสรุป</h2>
+            <div id="summaryReport"></div>
+            <canvas id="summaryChart" width="400" height="200"></canvas>
+        </section>
     </div>
-
-    <!-- ส่วนที่ 2 -->
-    <div id="budgetSection" class="result-section hidden">
-      <h2>งบประมาณตามสูตร</h2>
-      <div id="budgetDisplay"></div>
-      <h2>กรอก Actual</h2>
-      <div id="actualInputs"></div>
-      <button onclick="saveProject()">บันทึกโครงการ</button>
-    </div>
-
-    <!-- ส่วนที่ 3 -->
-    <div>
-      <h2>ประวัติโครงการ</h2>
-      <table id="projectTable">
-        <thead>
-          <tr>
-            <th>ชื่อโครงการ</th><th>งบประมาณ</th><th>Actual</th><th>ลบ</th>
-          </tr>
-        </thead>
-        <tbody id="projectHistory"></tbody>
-      </table>
-    </div>
-
-    <!-- สรุป -->
-    <div>
-      <h2>รายงานสรุปยอดรวม Actual</h2>
-      <div id="summaryReport"></div>
-    </div>
-  </div>
-
-  <script>
-    let projects = [];
-
-    function calculateBudget() {
-      const name = document.getElementById("projectName").value;
-      const value = parseFloat(document.getElementById("projectValue").value);
-      if (!name || isNaN(value) || value <= 0) return alert("กรุณากรอกข้อมูลให้ครบ");
-
-      const budget = {
-        labor: value * 0.65,
-        material: value * 0.10,
-        equip: value * 0.05,
-        overhead: value * 0.10,
-        profit: value * 0.10
-      };
-
-      document.getElementById("budgetDisplay").innerHTML = `
-        <p>ค่าแรง: ${budget.labor.toFixed(2)} | วัสดุ: ${budget.material.toFixed(2)} |
-        อุปกรณ์: ${budget.equip.toFixed(2)} | Overhead: ${budget.overhead.toFixed(2)} |
-        กำไร: ${budget.profit.toFixed(2)}</p>`;
-
-      document.getElementById("actualInputs").innerHTML = `
-        <label>ค่าแรง: <input type="number" id="actualLabor"></label>
-        <label>วัสดุ: <input type="number" id="actualMaterial"></label>
-        <label>อุปกรณ์: <input type="number" id="actualEquip"></label>
-        <label>Overhead: <input type="number" id="actualOverhead"></label>
-        <label>กำไร: <input type="number" id="actualProfit"></label>
-      `;
-
-      document.getElementById("budgetSection").classList.remove("hidden");
-      window.currentBudget = { name, value, budget };
-    }
-
-    function saveProject() {
-      const actual = {
-        labor: parseFloat(document.getElementById("actualLabor").value),
-        material: parseFloat(document.getElementById("actualMaterial").value),
-        equip: parseFloat(document.getElementById("actualEquip").value),
-        overhead: parseFloat(document.getElementById("actualOverhead").value),
-        profit: parseFloat(document.getElementById("actualProfit").value)
-      };
-
-      if (Object.values(actual).some(v => isNaN(v))) return alert("กรุณากรอก Actual ให้ครบ");
-
-      projects.push({ ...window.currentBudget, actual });
-      renderTable();
-      renderSummary();
-      document.getElementById("budgetSection").classList.add("hidden");
-    }
-
-    function deleteProject(index) {
-      projects.splice(index, 1);
-      renderTable();
-      renderSummary();
-    }
-
-    function renderTable() {
-      const tbody = document.getElementById("projectHistory");
-      tbody.innerHTML = "";
-      projects.forEach((p, i) => {
-        const actualTotal = Object.values(p.actual).reduce((a, b) => a + b, 0);
-        const budgetTotal = Object.values(p.budget).reduce((a, b) => a + b, 0);
-        tbody.innerHTML += `
-          <tr>
-            <td>${p.name}</td>
-            <td>${budgetTotal.toFixed(2)}</td>
-            <td>${actualTotal.toFixed(2)}</td>
-            <td><button onclick="deleteProject(${i})">ลบ</button></td>
-          </tr>`;
-      });
-    }
-
-    function renderSummary() {
-      const summary = projects.reduce((acc, p) => {
-        Object.keys(p.actual).forEach(k => acc[k] = (acc[k] || 0) + p.actual[k]);
-        return acc;
-      }, {});
-
-      document.getElementById("summaryReport").innerHTML = `
-        <p>ค่าแรง: ${summary.labor?.toFixed(2) || 0} | วัสดุ: ${summary.material?.toFixed(2) || 0} |
-        อุปกรณ์: ${summary.equip?.toFixed(2) || 0} | Overhead: ${summary.overhead?.toFixed(2) || 0} |
-        กำไร: ${summary.profit?.toFixed(2) || 0}</p>
-      `;
-    }
-  </script>
+    <script src="main.js"></script>
 </body>
 </html>
