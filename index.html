@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
   <div class="container">
     <h1>ระบบบริหารจัดการงบประมาณโครงการ</h1>
@@ -48,10 +50,16 @@
       </table>
     </div>
 
-    <h3>กราฟแสดงยอด Actual Cost สะสม</h3>
-    <canvas id="actualChart" width="400" height="200"></canvas>
+    <h3>กราฟวงกลมแสดงสัดส่วนยอด Actual Cost สะสม</h3>
+    <canvas id="actualPieChart" width="400" height="200"></canvas>
+
+    <h3>รายงานสรุปยอด Actual Cost สะสม</h3>
+    <div id="actualSummaryReport">
+      <!-- รายงานสรุปจะแสดงผลที่นี่ -->
+    </div>
   </div>
 
   <script src="main.js"></script>
 </body>
+
 </html>
