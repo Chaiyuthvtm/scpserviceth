@@ -6,9 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Project Budget Calculator</title>
     <style>
-      body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+      body { font-family: sans-serif; padding: 20px; max-width: 700px; margin: auto; }
       input, button { font-size: 1em; margin-top: 10px; width: 100%; padding: 10px; }
-      .result { margin-top: 20px; background: #f0f0f0; padding: 10px; border-radius: 8px; }
+      .result, .history { margin-top: 20px; background: #f0f0f0; padding: 10px; border-radius: 8px; }
+      table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+      th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 0.9em; }
     </style>
   </head>
   <body>
@@ -16,6 +18,7 @@
     <label>ชื่อโครงการ: <input type="text" id="projectName" /></label><br />
     <label>มูลค่าโครงการ (บาท): <input type="number" id="projectValue" /></label><br />
     <button onclick="calculate()">คำนวณ</button>
+    <button onclick="downloadCSV()">ดาวน์โหลดเป็น CSV</button>
 
     <div id="result" class="result" style="display:none;">
       <h2>ผลการคำนวณ</h2>
@@ -25,6 +28,24 @@
       <p><strong>อุปกรณ์ช่วย (5%):</strong> <span id="equipment"></span> บาท</p>
       <p><strong>Overhead (10%):</strong> <span id="overhead"></span> บาท</p>
       <p><strong>กำไร (10%):</strong> <span id="profit"></span> บาท</p>
+    </div>
+
+    <div id="history" class="history">
+      <h2>โครงการที่บันทึกไว้</h2>
+      <table id="historyTable">
+        <thead>
+          <tr>
+            <th>ชื่อโครงการ</th>
+            <th>มูลค่า</th>
+            <th>ค่าแรง</th>
+            <th>วัสดุ</th>
+            <th>อุปกรณ์</th>
+            <th>Overhead</th>
+            <th>กำไร</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </div>
 
     <script src="main.js"></script>
