@@ -1,123 +1,94 @@
 
-document.addEventListener("DOMContentLoaded", () => {
-  let projects = JSON.parse(localStorage.getItem("projects")) || [];
+let history = [];
+const ctx = document.getElementById('actualChart').getContext('2d');
+let chart;
 
-  window.calculateBudget = function () {
-    const name = document.getElementById("projectName").value;
-    const value = parseFloat(document.getElementById("projectValue").value);
-    if (!name || isNaN(value)) return alert("Please enter valid data");
+function format(n) {
+  return Number(n).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
 
-    const labor = value * 0.65;
-    const material = value * 0.10;
-    const equip = value * 0.05;
-    const overhead = value * 0.10;
-    const profit = value * 0.10;
+function calculate() {
+  const name = document.getElementById('projectName').value;
+  const value = parseFloat(document.getElementById('projectValue').value);
+  if (!name || isNaN(value)) return alert('กรุณาใส่ข้อมูลให้ครบ');
 
-    const project = {
-      id: Date.now(),
-      name,
-      value,
-      budget: { labor, material, equip, overhead, profit },
-      actual: { labor: 0, material: 0, equip: 0, overhead: 0, profit: 0 }
-    };
+  const labor = value * 0.65;
+  const material = value * 0.10;
+  const equip = value * 0.05;
+  const overhead = value * 0.10;
+  const profit = value * 0.10;
 
-    projects.push(project);
-    localStorage.setItem("projects", JSON.stringify(projects));
-    renderProjects();
-    renderChart();
-  };
+  const project = { name, value, budget: { labor, material, equip, overhead, profit }, actual: { labor: 0, material: 0, equip: 0, overhead: 0, profit: 0 } };
+  history.push(project);
+  renderTable();
+  updateChart();
+}
 
-  window.updateActual = function (id) {
-    const proj = projects.find(p => p.id === id);
-    if (!proj) return;
-
-    proj.actual.labor = parseFloat(document.getElementById(`actual-labor-${id}`).value) || 0;
-    proj.actual.material = parseFloat(document.getElementById(`actual-material-${id}`).value) || 0;
-    proj.actual.equip = parseFloat(document.getElementById(`actual-equip-${id}`).value) || 0;
-    proj.actual.overhead = parseFloat(document.getElementById(`actual-overhead-${id}`).value) || 0;
-    proj.actual.profit = parseFloat(document.getElementById(`actual-profit-${id}`).value) || 0;
-
-    localStorage.setItem("projects", JSON.stringify(projects));
-    renderChart();
-  };
-
-  window.deleteProject = function (id) {
-    projects = projects.filter(p => p.id !== id);
-    localStorage.setItem("projects", JSON.stringify(projects));
-    renderProjects();
-    renderChart();
-  };
-
-  function renderProjects() {
-    const container = document.getElementById("projectHistory");
-    if (!container) return;
-    container.innerHTML = `
-      <table class="table-auto w-full border text-sm">
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="border px-2 py-1">Project</th>
-            <th class="border px-2 py-1">Value</th>
-            <th class="border px-2 py-1">Labor</th>
-            <th class="border px-2 py-1">Material</th>
-            <th class="border px-2 py-1">Equip</th>
-            <th class="border px-2 py-1">Overhead</th>
-            <th class="border px-2 py-1">Profit</th>
-            <th class="border px-2 py-1">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${projects.map(p => `
-            <tr class="bg-white">
-              <td class="border px-2 py-1" rowspan="2">${p.name}</td>
-              <td class="border px-2 py-1" rowspan="2">${p.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-              <td class="border px-2 py-1">${p.budget.labor.toFixed(2)}</td>
-              <td class="border px-2 py-1">${p.budget.material.toFixed(2)}</td>
-              <td class="border px-2 py-1">${p.budget.equip.toFixed(2)}</td>
-              <td class="border px-2 py-1">${p.budget.overhead.toFixed(2)}</td>
-              <td class="border px-2 py-1">${p.budget.profit.toFixed(2)}</td>
-              <td class="border px-2 py-1" rowspan="2">
-                <button onclick="deleteProject(${p.id})" class="text-red-600">🗑</button>
-              </td>
-            </tr>
-            <tr class="bg-gray-50">
-              <td class="border px-2 py-1"><input id="actual-labor-${p.id}" type="number" value="${p.actual.labor}" class="w-full border p-1" /></td>
-              <td class="border px-2 py-1"><input id="actual-material-${p.id}" type="number" value="${p.actual.material}" class="w-full border p-1" /></td>
-              <td class="border px-2 py-1"><input id="actual-equip-${p.id}" type="number" value="${p.actual.equip}" class="w-full border p-1" /></td>
-              <td class="border px-2 py-1"><input id="actual-overhead-${p.id}" type="number" value="${p.actual.overhead}" class="w-full border p-1" /></td>
-              <td class="border px-2 py-1"><input id="actual-profit-${p.id}" type="number" value="${p.actual.profit}" class="w-full border p-1" /></td>
-              <td class="border px-2 py-1 text-center"><button onclick="updateActual(${p.id})" class="text-blue-600">💾</button></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
+function renderTable() {
+  const tbody = document.querySelector('#historyTable tbody');
+  tbody.innerHTML = '';
+  history.forEach((p, i) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td rowspan="2">${p.name}</td>
+      <td>${format(p.budget.labor)}</td><td>${format(p.budget.material)}</td><td>${format(p.budget.equip)}</td><td>${format(p.budget.overhead)}</td><td>${format(p.budget.profit)}</td>
+      <td><input type="number" value="${p.actual.labor}" onchange="updateActual(${i}, 'labor', this.value)" /></td>
+      <td><input type="number" value="${p.actual.material}" onchange="updateActual(${i}, 'material', this.value)" /></td>
+      <td><input type="number" value="${p.actual.equip}" onchange="updateActual(${i}, 'equip', this.value)" /></td>
+      <td><input type="number" value="${p.actual.overhead}" onchange="updateActual(${i}, 'overhead', this.value)" /></td>
+      <td><input type="number" value="${p.actual.profit}" onchange="updateActual(${i}, 'profit', this.value)" /></td>
+      <td rowspan="2"><button onclick="deleteProject(${i})">Delete</button></td>
     `;
-  }
+    tbody.appendChild(row);
 
-  function renderChart() {
-    const ctx = document.getElementById('actualChart').getContext('2d');
-    const data = projects.map(p => Object.values(p.actual).reduce((a, b) => a + b, 0));
-    const labels = projects.map(p => p.name);
+    const row2 = document.createElement('tr');
+    row2.innerHTML = '<td colspan="10"></td>';
+    tbody.appendChild(row2);
+  });
+}
 
-    if (window.myChart) window.myChart.destroy();
-    window.myChart = new Chart(ctx, {
+function updateActual(index, field, value) {
+  history[index].actual[field] = parseFloat(value) || 0;
+  updateChart();
+}
+
+function deleteProject(index) {
+  history.splice(index, 1);
+  renderTable();
+  updateChart();
+}
+
+function updateChart() {
+  const total = { labor: 0, material: 0, equip: 0, overhead: 0, profit: 0 };
+  history.forEach(p => {
+    total.labor += p.actual.labor;
+    total.material += p.actual.material;
+    total.equip += p.actual.equip;
+    total.overhead += p.actual.overhead;
+    total.profit += p.actual.profit;
+  });
+
+  const data = [total.labor, total.material, total.equip, total.overhead, total.profit];
+  if (chart) {
+    chart.data.datasets[0].data = data;
+    chart.update();
+  } else {
+    chart = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels,
+        labels: ['Labor', 'Material', 'Equip', 'Overhead', 'Profit'],
         datasets: [{
-          label: 'Actual Total',
+          label: 'Actual Cost',
           data,
-          backgroundColor: 'rgba(75, 192, 192, 0.6)'
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
         }]
       },
       options: {
         responsive: true,
-        plugins: {
-          legend: { display: false }
+        scales: {
+          y: { beginAtZero: true }
         }
       }
     });
   }
-
-  renderProjects();
-  renderChart();
-});
+}

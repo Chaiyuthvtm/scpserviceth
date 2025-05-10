@@ -1,41 +1,41 @@
 
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Project Budget App</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Management</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 p-4">
-  <div class="max-w-4xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-xl font-bold mb-4">ระบบบริหารจัดการงบประมาณโครงการ</h1>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-      <div>
-        <label class="block font-medium mb-1">ชื่อโครงการ</label>
-        <input type="text" id="projectName" class="w-full border p-2 rounded" />
-      </div>
-      <div>
-        <label class="block font-medium mb-1">มูลค่าโครงการ</label>
-        <input type="number" id="projectValue" class="w-full border p-2 rounded" />
-      </div>
-    </div>
-    <button onclick="calculateBudget()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-      คำนวณ
-    </button>
+<body>
+  <div class="container">
+    <h1>ระบบบริหารจัดการงบประมาณโครงการ</h1>
+    <label>ชื่อโครงการ <input id="projectName" type="text" /></label>
+    <label>มูลค่าโครงการ <input id="projectValue" type="number" /></label>
+    <button onclick="calculate()">คำนวณ</button>
 
-    <hr class="my-6"/>
+    <h2>ประวัติโครงการ</h2>
+    <table id="historyTable" border="1">
+      <thead>
+        <tr>
+          <th rowspan="2">Project</th>
+          <th colspan="5">Budget</th>
+          <th colspan="5">Actual</th>
+          <th rowspan="2">Actions</th>
+        </tr>
+        <tr>
+          <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
+          <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-    <h2 class="text-lg font-semibold mb-2">ประวัติโครงการ</h2>
-    <div id="projectHistory" class="overflow-auto"></div>
-
-    <hr class="my-6"/>
-    <h2 class="text-lg font-semibold mb-2">กราฟแสดงยอด Actual Cost สะสม</h2>
-    <canvas id="actualChart" class="w-full h-64"></canvas>
+    <h3>กราฟแสดงยอด Actual Cost สะสม</h3>
+    <canvas id="actualChart" width="400" height="200"></canvas>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
