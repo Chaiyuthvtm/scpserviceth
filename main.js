@@ -1,4 +1,8 @@
 
+function formatNumber(num) {
+  return num.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function calculate() {
   const name = document.getElementById('projectName').value.trim();
   const value = parseFloat(document.getElementById('projectValue').value);
@@ -15,11 +19,11 @@ function calculate() {
   const profit = +(value * 0.10).toFixed(2);
 
   document.getElementById('nameOutput').innerText = name;
-  document.getElementById('labor').innerText = labor;
-  document.getElementById('material').innerText = material;
-  document.getElementById('equipment').innerText = equipment;
-  document.getElementById('overhead').innerText = overhead;
-  document.getElementById('profit').innerText = profit;
+  document.getElementById('labor').innerText = formatNumber(labor);
+  document.getElementById('material').innerText = formatNumber(material);
+  document.getElementById('equipment').innerText = formatNumber(equipment);
+  document.getElementById('overhead').innerText = formatNumber(overhead);
+  document.getElementById('profit').innerText = formatNumber(profit);
   document.getElementById('result').style.display = 'block';
 
   const project = { name, value, labor, material, equipment, overhead, profit };
@@ -34,18 +38,26 @@ function renderHistory() {
   const tbody = document.querySelector('#historyTable tbody');
   tbody.innerHTML = '';
   const history = JSON.parse(localStorage.getItem('projectHistory')) || [];
-  history.forEach(p => {
+  history.forEach((p, index) => {
     const row = `<tr>
       <td>${p.name}</td>
-      <td>${p.value}</td>
-      <td>${p.labor}</td>
-      <td>${p.material}</td>
-      <td>${p.equipment}</td>
-      <td>${p.overhead}</td>
-      <td>${p.profit}</td>
+      <td>${formatNumber(p.value)}</td>
+      <td>${formatNumber(p.labor)}</td>
+      <td>${formatNumber(p.material)}</td>
+      <td>${formatNumber(p.equipment)}</td>
+      <td>${formatNumber(p.overhead)}</td>
+      <td>${formatNumber(p.profit)}</td>
+      <td><button class="delete-btn" onclick="deleteProject(${index})">ลบ</button></td>
     </tr>`;
     tbody.innerHTML += row;
   });
+}
+
+function deleteProject(index) {
+  let history = JSON.parse(localStorage.getItem('projectHistory')) || [];
+  history.splice(index, 1);
+  localStorage.setItem('projectHistory', JSON.stringify(history));
+  renderHistory();
 }
 
 function downloadCSV() {
