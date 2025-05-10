@@ -1,21 +1,30 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Project Management</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <h1>Project Management</h1>
-  <label>Project Name: <input id="projectName" type="text"></label>
-  <label>Project Value: <input id="projectValue" type="number"></label>
-  <button id="calculateBtn">Calculate</button>
-  <div>
-    <h2>Actual Cost Summary</h2>
-    <canvas id="actualChart" width="300" height="200"></canvas>
-  </div>
-  <script src="main.js"></script>
+<body class="p-4">
+    <h1 class="text-3xl font-bold mb-4">Project Management</h1>
+    <div class="mb-4">
+        <label>Project Name:</label>
+        <input type="text" id="projectName" class="border p-1" />
+        <label>Project Value:</label>
+        <input type="number" id="projectValue" class="border p-1" />
+        <button onclick="calculateBudget()" class="bg-blue-500 text-white px-2 py-1">Calculate</button>
+        <button onclick="exportToCSV()" class="bg-green-500 text-white px-2 py-1">Export CSV</button>
+    </div>
+    <input type="text" id="searchInput" onkeyup="filterProjects()" placeholder="Search project..." class="border p-1 mb-4" />
+    <div>
+        <h2 class="text-xl font-bold mt-4">Actual Cost Summary</h2>
+        <p id="actualSummary" class="mb-2"></p>
+        <canvas id="actualChart" width="400" height="200"></canvas>
+    </div>
+    <h2 class="text-xl font-bold mt-4">Project History</h2>
+    <div id="projectHistory" class="overflow-auto mt-2"></div>
+    <script src="main.js"></script>
 </body>
 </html>
