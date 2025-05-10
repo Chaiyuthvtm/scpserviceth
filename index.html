@@ -2,37 +2,18 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <title>ระบบสรุปค่าใช้จ่ายโครงการ</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>สรุปค่าใช้จ่ายโครงการ</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="container">
-        <h1>ระบบจัดการค่าใช้จ่ายโครงการ</h1>
-        <section id="input-section">
-            <h2>1. กรอกข้อมูลโครงการ</h2>
-            <input type="text" id="projectName" placeholder="ชื่อโครงการ">
-            <input type="number" id="projectValue" placeholder="มูลค่าโครงการ">
-            <button onclick="calculateBudget()">คำนวณงบประมาณ</button>
-        </section>
-
-        <section id="actual-section">
-            <h2>2. กรอกข้อมูลค่าใช้จ่ายจริง (Actual)</h2>
-            <div id="actualInputs"></div>
-        </section>
-
-        <section id="history-section">
-            <h2>4. ประวัติโครงการ</h2>
-            <div id="projectHistory"></div>
-        </section>
-
-        <section id="summary-section">
-            <h2>5. รายงานสรุป</h2>
-            <div id="summaryReport"></div>
-            <canvas id="summaryChart" width="400" height="200"></canvas>
-        </section>
-    </div>
-    <script src="main.js"></script>
+  <div class="container">
+    <h1>สรุปค่าใช้จ่ายโครงการ</h1>
+    <div id="reportSummary" class="summary"></div>
+    <canvas id="comparisonChart" width="600" height="400"></canvas>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="main.js"></script>
 </body>
 </html>

@@ -1,41 +1,21 @@
 
 body {
-    font-family: sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #f4f4f4;
+  font-family: sans-serif;
+  padding: 20px;
 }
 .container {
-    padding: 20px;
-    background: white;
-    max-width: 800px;
-    margin: auto;
+  max-width: 800px;
+  margin: 0 auto;
 }
-h1, h2 {
-    color: #333;
-}
-input, button {
-    padding: 10px;
-    margin: 5px 0;
-}
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-th, td {
-    border: 1px solid #aaa;
-    padding: 8px;
-    text-align: center;
-}
-th {
-    background-color: #eee;
+.summary {
+  font-size: 18px;
+  margin-bottom: 20px;
 }
 .positive {
-    color: green;
-    font-weight: bold;
+  color: green;
+  font-weight: bold;
 }
 .negative {
-    color: red;
-    font-weight: bold;
+  color: red;
+  font-weight: bold;
 }
