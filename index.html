@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Project Budget Calculator</title>
     <style>
-      body { font-family: sans-serif; padding: 20px; max-width: 750px; margin: auto; }
-      input, button { font-size: 1em; margin-top: 10px; width: 100%; padding: 10px; }
-      .result, .history { margin-top: 20px; background: #f0f0f0; padding: 10px; border-radius: 8px; }
+      body { font-family: sans-serif; padding: 20px; max-width: 850px; margin: auto; }
+      input, button, select { font-size: 1em; margin-top: 10px; width: 100%; padding: 10px; }
+      .result, .history, .summary { margin-top: 20px; background: #f0f0f0; padding: 10px; border-radius: 8px; }
       table { width: 100%; border-collapse: collapse; margin-top: 10px; }
       th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 0.9em; }
       button.delete-btn { background: #ff5555; color: white; border: none; padding: 5px 10px; border-radius: 5px; }
@@ -18,6 +18,12 @@
     <h1>คำนวณงบประมาณโครงการ</h1>
     <label>ชื่อโครงการ: <input type="text" id="projectName" /></label><br />
     <label>มูลค่าโครงการ (บาท): <input type="number" id="projectValue" /></label><br />
+    <label>สถานะโครงการ: 
+      <select id="projectStatus">
+        <option value="plan">Plan</option>
+        <option value="actual">Actual</option>
+      </select>
+    </label><br />
     <button onclick="calculate()">คำนวณ</button>
     <button onclick="downloadCSV()">ดาวน์โหลดเป็น CSV</button>
 
@@ -38,6 +44,7 @@
           <tr>
             <th>ชื่อโครงการ</th>
             <th>มูลค่า</th>
+            <th>สถานะ</th>
             <th>ค่าแรง</th>
             <th>วัสดุ</th>
             <th>อุปกรณ์</th>
@@ -48,6 +55,16 @@
         </thead>
         <tbody></tbody>
       </table>
+    </div>
+
+    <div id="summary" class="summary">
+      <h2>สรุปยอดสะสมของโครงการที่เป็น Actual</h2>
+      <p><strong>รวมมูลค่า:</strong> <span id="sumValue">0.00</span> บาท</p>
+      <p><strong>รวมค่าแรง:</strong> <span id="sumLabor">0.00</span> บาท</p>
+      <p><strong>รวมวัสดุ:</strong> <span id="sumMaterial">0.00</span> บาท</p>
+      <p><strong>รวมอุปกรณ์:</strong> <span id="sumEquipment">0.00</span> บาท</p>
+      <p><strong>รวม Overhead:</strong> <span id="sumOverhead">0.00</span> บาท</p>
+      <p><strong>รวมกำไร:</strong> <span id="sumProfit">0.00</span> บาท</p>
     </div>
 
     <script src="main.js"></script>
