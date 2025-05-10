@@ -80,7 +80,7 @@ function renderSummary() {
   } else {
     const color = totalActual > totalBudget ? "red" : "green";
     summary.innerHTML = \`ยอดรวม Budget: <span class="bold">\${totalBudget.toFixed(2)}</span> |
-      ยอดรวม Actual: <span class="bold \${color}">\${totalActual.toFixed(2)}</span>\`;
+      ยอดรวม Actual: <span class="bold \${color}">\${totalActual.toFixed(2)}</span>\` ;
   }
 
   renderChart(totalBudget, totalActual);
