@@ -1,38 +1,44 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <title>ระบบสรุปค่าใช้จ่ายโครงการ</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ระบบบริหารจัดการงบประมาณโครงการ</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>ระบบจัดการค่าใช้จ่ายโครงการ</h1>
-        <section id="input-section">
-            <h2>1. กรอกข้อมูลโครงการ</h2>
-            <input type="text" id="projectName" placeholder="ชื่อโครงการ">
-            <input type="number" id="projectValue" placeholder="มูลค่าโครงการ">
-            <button onclick="calculateBudget()">คำนวณงบประมาณ</button>
-        </section>
-
-        <section id="actual-section">
-            <h2>2. กรอกข้อมูลค่าใช้จ่ายจริง (Actual)</h2>
-            <div id="actualInputs"></div>
-        </section>
-
-        <section id="history-section">
-            <h2>4. ประวัติโครงการ</h2>
-            <div id="projectHistory"></div>
-        </section>
-
-        <section id="summary-section">
-            <h2>5. รายงานสรุป</h2>
-            <div id="summaryReport"></div>
-            <canvas id="summaryChart" width="400" height="200"></canvas>
-        </section>
+  <div class="container">
+    <h1>ระบบบริหารจัดการงบประมาณโครงการ</h1>
+    <div class="form-group">
+      <label>ชื่อโครงการ</label>
+      <input type="text" id="projectName">
+      <label>มูลค่าโครงการ</label>
+      <input type="number" id="projectValue">
+      <button onclick="calculateBudget()">คำนวณ</button>
     </div>
-    <script src="main.js"></script>
+    <h2>ประวัติโครงการ</h2>
+    <table id="projectTable">
+      <thead>
+        <tr>
+          <th>ชื่อโครงการ</th>
+          <th colspan="5">งบประมาณ</th>
+          <th colspan="5">ค่าใช้จ่ายจริง (Actual)</th>
+          <th>ลบ</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th>แรงงาน</th><th>วัสดุ</th><th>อุปกรณ์</th><th>Overhead</th><th>กำไร</th>
+          <th>แรงงาน</th><th>วัสดุ</th><th>อุปกรณ์</th><th>Overhead</th><th>กำไร</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="projectTableBody"></tbody>
+    </table>
+    <h2>รายงานสรุป</h2>
+    <div id="summaryReport"></div>
+    <canvas id="comparisonChart" width="400" height="200"></canvas>
+  </div>
+  <script src="main.js"></script>
 </body>
 </html>
