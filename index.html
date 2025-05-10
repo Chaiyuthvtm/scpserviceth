@@ -1,14 +1,32 @@
 
 <!DOCTYPE html>
 <html lang="th">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Project Budget App</title>
-  <meta name="theme-color" content="#ffffff" />
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="main.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Budget Calculator</title>
+    <style>
+      body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+      input, button { font-size: 1em; margin-top: 10px; width: 100%; padding: 10px; }
+      .result { margin-top: 20px; background: #f0f0f0; padding: 10px; border-radius: 8px; }
+    </style>
+  </head>
+  <body>
+    <h1>คำนวณงบประมาณโครงการ</h1>
+    <label>ชื่อโครงการ: <input type="text" id="projectName" /></label><br />
+    <label>มูลค่าโครงการ (บาท): <input type="number" id="projectValue" /></label><br />
+    <button onclick="calculate()">คำนวณ</button>
+
+    <div id="result" class="result" style="display:none;">
+      <h2>ผลการคำนวณ</h2>
+      <p><strong>ชื่อโครงการ:</strong> <span id="nameOutput"></span></p>
+      <p><strong>ค่าแรง (65%):</strong> <span id="labor"></span> บาท</p>
+      <p><strong>วัสดุสิ้นเปลือง (10%):</strong> <span id="material"></span> บาท</p>
+      <p><strong>อุปกรณ์ช่วย (5%):</strong> <span id="equipment"></span> บาท</p>
+      <p><strong>Overhead (10%):</strong> <span id="overhead"></span> บาท</p>
+      <p><strong>กำไร (10%):</strong> <span id="profit"></span> บาท</p>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
 </html>
