@@ -1,149 +1,92 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const $ = selector => document.querySelector(selector);
-  const resultDiv = $("#result");
-  const summaryDiv = $("#summary");
-  const tbody = $("#historyTable tbody");
-  const ctx = document.getElementById("summaryChart").getContext("2d");
+let projects = JSON.parse(localStorage.getItem("projects") || "[]");
+function calculate() {
+    const name = document.getElementById("projectName").value.trim();
+    const value = parseFloat(document.getElementById("projectValue").value);
+    if (!name || isNaN(value)) return;
 
-  let chart;
+    const labor = value * 0.65;
+    const material = value * 0.10;
+    const equip = value * 0.05;
+    const overhead = value * 0.10;
+    const profit = value * 0.10;
 
-  function format(n) {
-    return n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
+    projects.push({ name, value, budget: { labor, material, equip, overhead, profit }, actual: {} });
+    localStorage.setItem("projects", JSON.stringify(projects));
+    renderProjects();
+}
 
-  function getProjects() {
-    return JSON.parse(localStorage.getItem("projects") || "[]");
-  }
-
-  function saveProjects(data) {
-    localStorage.setItem("projects", JSON.stringify(data));
-  }
-
-  function calculate(value) {
-    return {
-      labor: value * 0.65,
-      material: value * 0.10,
-      equipment: value * 0.05,
-      overhead: value * 0.10,
-      profit: value * 0.10
+function updateActual(index) {
+    const row = document.getElementById("row-" + index);
+    const actual = {
+        labor: parseFloat(row.querySelector(".a-labor").value) || 0,
+        material: parseFloat(row.querySelector(".a-material").value) || 0,
+        equip: parseFloat(row.querySelector(".a-equip").value) || 0,
+        overhead: parseFloat(row.querySelector(".a-overhead").value) || 0,
+        profit: parseFloat(row.querySelector(".a-profit").value) || 0,
     };
-  }
+    projects[index].actual = actual;
+    localStorage.setItem("projects", JSON.stringify(projects));
+    renderProjects();
+}
 
-  function render() {
-    const data = getProjects();
-    tbody.innerHTML = "";
+function deleteProject(index) {
+    if (confirm("Delete this project?")) {
+        projects.splice(index, 1);
+        localStorage.setItem("projects", JSON.stringify(projects));
+        renderProjects();
+    }
+}
 
-    data.forEach((p, i) => {
-      const actual = p.actual || { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${p.name}</td>
-        <td>${format(p.budget.labor)}</td>
-        <td>${format(p.budget.material)}</td>
-        <td>${format(p.budget.equipment)}</td>
-        <td>${format(p.budget.overhead)}</td>
-        <td>${format(p.budget.profit)}</td>
-        <td><input type="number" value="${actual.labor}" onchange="updateActual(${i}, 'labor', this.value)"></td>
-        <td><input type="number" value="${actual.material}" onchange="updateActual(${i}, 'material', this.value)"></td>
-        <td><input type="number" value="${actual.equipment}" onchange="updateActual(${i}, 'equipment', this.value)"></td>
-        <td><input type="number" value="${actual.overhead}" onchange="updateActual(${i}, 'overhead', this.value)"></td>
-        <td><input type="number" value="${actual.profit}" onchange="updateActual(${i}, 'profit', this.value)"></td>
-        <td><button onclick="deleteProject(${i})">X</button></td>
-      `;
-      tbody.appendChild(row);
-    });
-
-    renderSummary();
-  }
-
-  function renderSummary() {
-    const data = getProjects();
-    const sum = { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
-
-    data.forEach(p => {
-      if (p.actual) {
-        sum.labor += +p.actual.labor;
-        sum.material += +p.actual.material;
-        sum.equipment += +p.actual.equipment;
-        sum.overhead += +p.actual.overhead;
-        sum.profit += +p.actual.profit;
-      }
-    });
-
-    summaryDiv.innerHTML = `
-      <p>Labor: ${format(sum.labor)}</p>
-      <p>Material: ${format(sum.material)}</p>
-      <p>Equipment: ${format(sum.equipment)}</p>
-      <p>Overhead: ${format(sum.overhead)}</p>
-      <p>Profit: ${format(sum.profit)}</p>
-    `;
-
-    if (chart) chart.destroy();
-    chart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: ["Labor", "Material", "Equipment", "Overhead", "Profit"],
-        datasets: [{
-          label: "Actual Cost Summary",
-          data: [sum.labor, sum.material, sum.equipment, sum.overhead, sum.profit],
-          backgroundColor: ["#007bff", "#28a745", "#ffc107", "#17a2b8", "#dc3545"]
-        }]
-      }
-    });
-  }
-
-  $("#calculateBtn").onclick = () => {
-    const name = $("#projectName").value.trim();
-    const value = parseFloat($("#projectValue").value);
-    if (!name || isNaN(value)) return alert("Fill name and value");
-    const budget = calculate(value);
-    const data = getProjects();
-    data.push({ name, value, budget });
-    saveProjects(data);
-    $("#projectName").value = "";
-    $("#projectValue").value = "";
-    render();
-  };
-
-  $("#searchInput").addEventListener("input", e => {
-    const q = e.target.value.toLowerCase();
-    [...tbody.rows].forEach(row => {
-      row.style.display = row.cells[0].textContent.toLowerCase().includes(q) ? "" : "none";
-    });
-  });
-
-  $("#exportBtn").onclick = () => {
-    const data = getProjects();
-    let csv = "Name, Labor, Material, Equipment, Overhead, Profit, A_Labor, A_Material, A_Equipment, A_Overhead, A_Profit\n";
-    data.forEach(p => {
-      const a = p.actual || {};
-      csv += `${p.name},${p.budget.labor},${p.budget.material},${p.budget.equipment},${p.budget.overhead},${p.budget.profit},${a.labor||0},${a.material||0},${a.equipment||0},${a.overhead||0},${a.profit||0}\n`;
+function exportCSV() {
+    let csv = "Project,Budget Labor,Budget Material,Budget Equip,Budget Overhead,Budget Profit,Actual Labor,Actual Material,Actual Equip,Actual Overhead,Actual Profit\n";
+    projects.forEach(p => {
+        csv += [p.name, p.budget.labor, p.budget.material, p.budget.equip, p.budget.overhead, p.budget.profit,
+            p.actual.labor || "", p.actual.material || "", p.actual.equip || "", p.actual.overhead || "", p.actual.profit || ""].join(",") + "\n";
     });
     const blob = new Blob([csv], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "projects.csv";
-    link.click();
-  };
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "projects.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+}
 
-  $("#languageSelect").onchange = () => {
-    alert("Demo only: ระบบยังไม่รองรับการแปลภาษาแบบเต็มรูปแบบ");
-  };
+function renderProjects() {
+    const table = document.getElementById("projectList");
+    table.innerHTML = "";
+    let sum = { labor: 0, material: 0, equip: 0, overhead: 0, profit: 0 };
+    projects.forEach((p, i) => {
+        const a = p.actual || {};
+        sum.labor += a.labor || 0;
+        sum.material += a.material || 0;
+        sum.equip += a.equip || 0;
+        sum.overhead += a.overhead || 0;
+        sum.profit += a.profit || 0;
+        table.innerHTML += \`
+        <tr id="row-\${i}">
+            <td>\${p.name}</td>
+            <td>\${p.budget.labor.toFixed(2)}</td>
+            <td>\${p.budget.material.toFixed(2)}</td>
+            <td>\${p.budget.equip.toFixed(2)}</td>
+            <td>\${p.budget.overhead.toFixed(2)}</td>
+            <td>\${p.budget.profit.toFixed(2)}</td>
+            <td><input class="a-labor" value="\${a.labor || ""}"/></td>
+            <td><input class="a-material" value="\${a.material || ""}"/></td>
+            <td><input class="a-equip" value="\${a.equip || ""}"/></td>
+            <td><input class="a-overhead" value="\${a.overhead || ""}"/></td>
+            <td><input class="a-profit" value="\${a.profit || ""}"/><button onclick="updateActual(\${i})">อัป</button></td>
+            <td><button onclick="deleteProject(\${i})">ลบ</button></td>
+        </tr>\`;
+    });
+    document.getElementById("actualSummary").innerHTML = \`
+        ยอด Actual Cost สะสม:<br/>
+        ค่าแรง: \${sum.labor.toFixed(2)}<br/>
+        วัสดุสิ้นเปลือง: \${sum.material.toFixed(2)}<br/>
+        อุปกรณ์ช่วย: \${sum.equip.toFixed(2)}<br/>
+        Overhead: \${sum.overhead.toFixed(2)}<br/>
+        กำไร: \${sum.profit.toFixed(2)}
+    \`;
+}
 
-  window.updateActual = (i, field, val) => {
-    const data = getProjects();
-    if (!data[i].actual) data[i].actual = {};
-    data[i].actual[field] = parseFloat(val) || 0;
-    saveProjects(data);
-    render();
-  };
-
-  window.deleteProject = i => {
-    const data = getProjects();
-    data.splice(i, 1);
-    saveProjects(data);
-    render();
-  };
-
-  render();
-});
+renderProjects();

@@ -1,59 +1,71 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ระบบจัดการโครงการ</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { font-family: sans-serif; padding: 10px; max-width: 960px; margin: auto; }
-    input[type="number"], input[type="text"], select { width: 120px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 10px; font-size: 14px; }
-    th, td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-    th { background-color: #f9f9f9; }
-    button { padding: 4px 8px; margin: 2px; }
-    canvas { max-width: 100%; height: auto; }
-    @media (max-width: 600px) {
-      table, thead, tbody, th, td, tr { font-size: 12px; }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Project Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 1000px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        input[type="text"], input[type="number"] {
+            width: 90px;
+        }
+        button {
+            padding: 4px 10px;
+        }
+    </style>
 </head>
 <body>
-  <h1>Project Management</h1>
-  <label>Project Name: <input type="text" id="projectName"></label>
-  <label>Project Value: <input type="number" id="projectValue" step="0.01"></label>
-  <button id="calculateBtn">Calculate</button>
-  <button id="exportBtn">Export CSV</button>
-  <input type="text" id="searchInput" placeholder="Search project...">
-  <select id="languageSelect">
-    <option value="th">TH</option>
-    <option value="en">EN</option>
-  </select>
+    <h2>Project Management</h2>
+    <div>
+        Project Name: <input type="text" id="projectName" />
+        Project Value: <input type="number" id="projectValue" />
+        <button onclick="calculate()">Calculate</button>
+        <button onclick="exportCSV()">Export CSV</button>
+        <input type="text" id="searchBox" placeholder="Search project..." />
+    </div>
+    <h3>Budget Summary</h3>
+    <div id="summary"></div>
+    <h3>Actual Cost Summary</h3>
+    <div id="actualSummary"></div>
 
-  <h2>Budget Summary</h2>
-  <div id="result"></div>
+    <h3>Project History</h3>
+    <div class="table-container">
+        <table id="projectTable">
+            <thead>
+                <tr>
+                    <th rowspan="2">Project Name</th>
+                    <th colspan="5">Budget</th>
+                    <th colspan="5">Actual</th>
+                    <th rowspan="2">Delete</th>
+                </tr>
+                <tr>
+                    <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
+                    <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
+                </tr>
+            </thead>
+            <tbody id="projectList"></tbody>
+        </table>
+    </div>
 
-  <h2>Actual Cost Summary</h2>
-  <div id="summary"></div>
-  <canvas id="summaryChart"></canvas>
-
-  <h2>Project History</h2>
-  <table id="historyTable">
-    <thead>
-      <tr>
-        <th rowspan="2">Project Name</th>
-        <th colspan="5">Budget</th>
-        <th colspan="5">Actual</th>
-        <th rowspan="2">Delete</th>
-      </tr>
-      <tr>
-        <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
-        <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="main.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
