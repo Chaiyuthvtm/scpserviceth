@@ -14,16 +14,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
         historyTable.innerHTML = "";
         data.forEach((item, index) => {
-            const row = historyTable.insertRow();
-            row.innerHTML = `
-                <td>${item.name}</td>
-                <td>${format(item.value)}</td>
+            const row1 = historyTable.insertRow();
+            row1.innerHTML = `
+                <td rowspan="2">${item.name}</td>
                 <td>${format(item.labor)}</td>
                 <td>${format(item.material)}</td>
                 <td>${format(item.equipment)}</td>
                 <td>${format(item.overhead)}</td>
                 <td>${format(item.profit)}</td>
-                <td><button onclick="deleteProject(${index})">ลบ</button></td>
+                <td rowspan="2"><button onclick="deleteProject(${index})">ลบ</button></td>
+            `;
+
+            const row2 = historyTable.insertRow();
+            row2.innerHTML = `
+                <td><input type="number" value="${item.actual?.labor || ''}" onchange="updateActual(${index}, 'labor', this.value)"></td>
+                <td><input type="number" value="${item.actual?.material || ''}" onchange="updateActual(${index}, 'material', this.value)"></td>
+                <td><input type="number" value="${item.actual?.equipment || ''}" onchange="updateActual(${index}, 'equipment', this.value)"></td>
+                <td><input type="number" value="${item.actual?.overhead || ''}" onchange="updateActual(${index}, 'overhead', this.value)"></td>
+                <td><input type="number" value="${item.actual?.profit || ''}" onchange="updateActual(${index}, 'profit', this.value)"></td>
             `;
         });
     }
@@ -33,6 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
         data.splice(index, 1);
         localStorage.setItem("projectHistory", JSON.stringify(data));
         loadHistory();
+    };
+
+    window.updateActual = function(index, field, value) {
+        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        if (!data[index].actual) data[index].actual = {};
+        data[index].actual[field] = parseFloat(value) || 0;
+        localStorage.setItem("projectHistory", JSON.stringify(data));
     };
 
     calculateBtn.addEventListener("click", () => {
