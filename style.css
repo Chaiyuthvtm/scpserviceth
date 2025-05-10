@@ -1,15 +1,12 @@
+
 body {
-  font-family: sans-serif;
+  font-family: Tahoma, sans-serif;
   padding: 20px;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: auto;
-}
-
-input {
-  margin: 4px 0;
 }
 
 table {
@@ -19,15 +16,15 @@ table {
 }
 
 th, td {
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   padding: 8px;
   text-align: center;
 }
 
-thead {
-  background-color: #f3f4f6;
+input[type="number"] {
+  width: 80px;
 }
 
-canvas {
-  margin-top: 20px;
+.form-group {
+  margin-bottom: 20px;
 }

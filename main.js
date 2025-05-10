@@ -1,104 +1,41 @@
-let projects = [];
 
 function calculateBudget() {
-  const name = document.getElementById('projectName').value;
-  const value = parseFloat(document.getElementById('projectValue').value);
-  if (!name || isNaN(value)) return;
+  const projectName = document.getElementById("projectName").value;
+  const projectValue = parseFloat(document.getElementById("projectValue").value);
+  if (!projectName || isNaN(projectValue)) {
+    alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+    return;
+  }
 
-  const project = {
-    name,
-    budget: {
-      labor: value * 0.65,
-      material: value * 0.10,
-      equip: value * 0.05,
-      overhead: value * 0.10,
-      profit: value * 0.10
-    },
-    actual: {
-      labor: 0,
-      material: 0,
-      equip: 0,
-      overhead: 0,
-      profit: 0
-    }
-  };
+  const labor = (projectValue * 0.65).toFixed(2);
+  const material = (projectValue * 0.10).toFixed(2);
+  const equip = (projectValue * 0.05).toFixed(2);
+  const overhead = (projectValue * 0.10).toFixed(2);
+  const profit = (projectValue * 0.10).toFixed(2);
 
-  projects.push(project);
-  renderTable();
-  renderChart();
+  const tableBody = document.getElementById("projectTableBody");
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+    <td>${projectName}</td>
+    <td>${labor}</td>
+    <td>${material}</td>
+    <td>${equip}</td>
+    <td>${overhead}</td>
+    <td>${profit}</td>
+    <td><input type="number" class="actual-input" data-type="labor" value="0" /></td>
+    <td><input type="number" class="actual-input" data-type="material" value="0" /></td>
+    <td><input type="number" class="actual-input" data-type="equip" value="0" /></td>
+    <td><input type="number" class="actual-input" data-type="overhead" value="0" /></td>
+    <td><input type="number" class="actual-input" data-type="profit" value="0" /></td>
+    <td><button onclick="updateSummary()">ลง</button></td>
+  `;
+
+  tableBody.appendChild(row);
 }
 
-function updateActual(index, field, value) {
-  projects[index].actual[field] = parseFloat(value) || 0;
-  renderChart();
-}
-
-function deleteProject(index) {
-  projects.splice(index, 1);
-  renderTable();
-  renderChart();
-}
-
-function renderTable() {
-  const tbody = document.getElementById('projectTableBody');
-  tbody.innerHTML = '';
-
-  projects.forEach((proj, index) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${proj.name}</td>
-      <td>${format(proj.budget.labor)}</td>
-      <td>${format(proj.budget.material)}</td>
-      <td>${format(proj.budget.equip)}</td>
-      <td>${format(proj.budget.overhead)}</td>
-      <td>${format(proj.budget.profit)}</td>
-      <td><input type="number" onchange="updateActual(${index}, 'labor', this.value)" value="${proj.actual.labor}" /></td>
-      <td><input type="number" onchange="updateActual(${index}, 'material', this.value)" value="${proj.actual.material}" /></td>
-      <td><input type="number" onchange="updateActual(${index}, 'equip', this.value)" value="${proj.actual.equip}" /></td>
-      <td><input type="number" onchange="updateActual(${index}, 'overhead', this.value)" value="${proj.actual.overhead}" /></td>
-      <td><input type="number" onchange="updateActual(${index}, 'profit', this.value)" value="${proj.actual.profit}" /></td>
-      <td><button onclick="deleteProject(${index})">ลบ</button></td>
-    `;
-    tbody.appendChild(row);
-  });
-}
-
-function renderChart() {
-  const totals = { labor: 0, material: 0, equip: 0, overhead: 0, profit: 0 };
-  projects.forEach(p => {
-    totals.labor += p.actual.labor;
-    totals.material += p.actual.material;
-    totals.equip += p.actual.equip;
-    totals.overhead += p.actual.overhead;
-    totals.profit += p.actual.profit;
-  });
-
-  const ctx = document.getElementById('actualChart').getContext('2d');
-  if (window.actualChartInstance) window.actualChartInstance.destroy();
-  window.actualChartInstance = new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: ['Labor', 'Material', 'Equip', 'Overhead', 'Profit'],
-      datasets: [{
-        data: [
-          totals.labor,
-          totals.material,
-          totals.equip,
-          totals.overhead,
-          totals.profit
-        ],
-        backgroundColor: ['#f87171', '#60a5fa', '#34d399', '#facc15', '#a78bfa']
-      }]
-    }
-  });
-}
-
-function format(num) {
-  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function updateActualSummary(projects) {
-  let totalActual = {
+function updateSummary() {
+  const summary = {
     labor: 0,
     material: 0,
     equip: 0,
@@ -106,24 +43,17 @@ function updateActualSummary(projects) {
     profit: 0
   };
 
-  projects.forEach(p => {
-    if (p.actual) {
-      totalActual.labor += parseFloat(p.actual.labor) || 0;
-      totalActual.material += parseFloat(p.actual.material) || 0;
-      totalActual.equip += parseFloat(p.actual.equip) || 0;
-      totalActual.overhead += parseFloat(p.actual.overhead) || 0;
-      totalActual.profit += parseFloat(p.actual.profit) || 0;
-    }
+  const inputs = document.querySelectorAll(".actual-input");
+  inputs.forEach(input => {
+    const type = input.dataset.type;
+    summary[type] += parseFloat(input.value) || 0;
   });
 
-  const summaryDiv = document.getElementById("summaryReport");
-  summaryDiv.innerHTML = `
-    <p>รวมค่าแรง: ${totalActual.labor.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
-    <p>รวมวัสดุสิ้นเปลือง: ${totalActual.material.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
-    <p>รวมอุปกรณ์ช่วย: ${totalActual.equip.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
-    <p>รวม Overhead: ${totalActual.overhead.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
-    <p>รวมกำไร: ${totalActual.profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
+  document.getElementById("summaryReport").innerHTML = `
+    <p>รวมค่าแรง: ${summary.labor.toFixed(2)} บาท</p>
+    <p>รวมวัสดุสิ้นเปลือง: ${summary.material.toFixed(2)} บาท</p>
+    <p>รวมอุปกรณ์ช่วย: ${summary.equip.toFixed(2)} บาท</p>
+    <p>รวม Overhead: ${summary.overhead.toFixed(2)} บาท</p>
+    <p>รวมกำไร: ${summary.profit.toFixed(2)} บาท</p>
   `;
 }
-
-updateActualSummary(projects);
