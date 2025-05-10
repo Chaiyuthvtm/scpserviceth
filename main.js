@@ -48,10 +48,10 @@ function renderHistory() {
   let history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
   const container = document.getElementById("history");
   container.innerHTML = "";
-  history.forEach(p => {
+  history.forEach((p, index) => {
     const div = document.createElement("div");
     div.className = "history-item";
-    div.innerHTML = `
+    div.innerHTML = `<button onclick='deleteProject(${index})' style='float:right;background:#dc3545;'>ลบ</button>
       <strong>${p.name}</strong><br/>
       มูลค่า: ${formatNumber(p.value)} บาท<br/>
       <u>งบประมาณ:</u><br/>
@@ -76,7 +76,7 @@ window.onload = renderHistory;
 function updateSummary() {
   let history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
   let totalLabor = 0, totalMaterial = 0, totalEquipment = 0, totalOverhead = 0, totalProfit = 0;
-  history.forEach(p => {
+  history.forEach((p, index) => {
     totalLabor += p.actualLabor || 0;
     totalMaterial += p.actualMaterial || 0;
     totalEquipment += p.actualEquipment || 0;
@@ -88,4 +88,13 @@ function updateSummary() {
   document.getElementById("totalEquipment").innerText = formatNumber(totalEquipment);
   document.getElementById("totalOverhead").innerText = formatNumber(totalOverhead);
   document.getElementById("totalProfit").innerText = formatNumber(totalProfit);
+}
+
+function deleteProject(index) {
+  let history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+  if (index >= 0 && index < history.length) {
+    history.splice(index, 1);
+    localStorage.setItem("projectHistory", JSON.stringify(history));
+    renderHistory();
+  }
 }
