@@ -96,3 +96,34 @@ function renderChart() {
 function format(num) {
   return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
+
+function updateActualSummary(projects) {
+  let totalActual = {
+    labor: 0,
+    material: 0,
+    equip: 0,
+    overhead: 0,
+    profit: 0
+  };
+
+  projects.forEach(p => {
+    if (p.actual) {
+      totalActual.labor += parseFloat(p.actual.labor) || 0;
+      totalActual.material += parseFloat(p.actual.material) || 0;
+      totalActual.equip += parseFloat(p.actual.equip) || 0;
+      totalActual.overhead += parseFloat(p.actual.overhead) || 0;
+      totalActual.profit += parseFloat(p.actual.profit) || 0;
+    }
+  });
+
+  const summaryDiv = document.getElementById("summaryReport");
+  summaryDiv.innerHTML = `
+    <p>รวมค่าแรง: ${totalActual.labor.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
+    <p>รวมวัสดุสิ้นเปลือง: ${totalActual.material.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
+    <p>รวมอุปกรณ์ช่วย: ${totalActual.equip.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
+    <p>รวม Overhead: ${totalActual.overhead.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
+    <p>รวมกำไร: ${totalActual.profit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} บาท</p>
+  `;
+}
+
+updateActualSummary(projects);
