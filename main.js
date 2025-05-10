@@ -80,3 +80,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
     loadHistory();
 });
+
+    function sumActualCosts() {
+        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        let sum = { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
+
+        data.forEach(item => {
+            if (item.actual) {
+                sum.labor += item.actual.labor || 0;
+                sum.material += item.actual.material || 0;
+                sum.equipment += item.actual.equipment || 0;
+                sum.overhead += item.actual.overhead || 0;
+                sum.profit += item.actual.profit || 0;
+            }
+        });
+
+        const summaryDiv = document.getElementById("summary");
+        summaryDiv.innerHTML = `
+            <h3>ยอด Actual Cost สะสม</h3>
+            <p>ค่าแรง: ${format(sum.labor)}</p>
+            <p>วัสดุสิ้นเปลือง: ${format(sum.material)}</p>
+            <p>อุปกรณ์ช่วย: ${format(sum.equipment)}</p>
+            <p>Overhead: ${format(sum.overhead)}</p>
+            <p>กำไร: ${format(sum.profit)}</p>
+        `;
+    }
+
+    window.updateActual = function(index, field, value) {
+        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        if (!data[index].actual) data[index].actual = {};
+        data[index].actual[field] = parseFloat(value) || 0;
+        localStorage.setItem("projectHistory", JSON.stringify(data));
+        sumActualCosts();
+    };
+
+    window.deleteProject = function(index) {
+        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        data.splice(index, 1);
+        localStorage.setItem("projectHistory", JSON.stringify(data));
+        loadHistory();
+        sumActualCosts();
+    };
+
+    loadHistory();
+    sumActualCosts();
+});
