@@ -24,19 +24,31 @@
         <option value="actual">Actual</option>
       </select>
     </label><br />
-    
-  <div id="actualInputs" style="display:none; margin-top: 10px;">
-    <label>ค่าแรง (บาท): <input type="number" id="inputLabor" /></label><br />
-    <label>วัสดุสิ้นเปลือง (บาท): <input type="number" id="inputMaterial" /></label><br />
-    <label>อุปกรณ์ช่วย (บาท): <input type="number" id="inputEquipment" /></label><br />
-    <label>Overhead (บาท): <input type="number" id="inputOverhead" /></label><br />
-    <label>กำไร (บาท): <input type="number" id="inputProfit" /></label><br />
-  </div>
-  <button onclick="calculate()">บันทึกโครงการ</button>
-  
+    <button onclick="calculate()">คำนวณ</button>
     <button onclick="downloadCSV()">ดาวน์โหลดเป็น CSV</button>
 
-    <div id="result" class="result" style="display:none;">
+    
+  <div id="result" class="result" style="display:none;">
+    <h2>ผลการคำนวณ</h2>
+    <p><strong>ชื่อโครงการ:</strong> <span id="nameOutput"></span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>หมวด</th>
+          <th>งบประมาณ</th>
+          <th>Actual (ถ้ามี)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>ค่าแรง (65%)</td><td><span id="labor"></span></td><td><input type="number" id="actualLabor" /></td></tr>
+        <tr><td>วัสดุสิ้นเปลือง (10%)</td><td><span id="material"></span></td><td><input type="number" id="actualMaterial" /></td></tr>
+        <tr><td>อุปกรณ์ช่วย (5%)</td><td><span id="equipment"></span></td><td><input type="number" id="actualEquipment" /></td></tr>
+        <tr><td>Overhead (10%)</td><td><span id="overhead"></span></td><td><input type="number" id="actualOverhead" /></td></tr>
+        <tr><td>กำไร (10%)</td><td><span id="profit"></span></td><td><input type="number" id="actualProfit" /></td></tr>
+      </tbody>
+    </table>
+    <button onclick="saveWithActual()">บันทึกโครงการพร้อม Actual</button>
+  
       <h2>ผลการคำนวณ</h2>
       <p><strong>ชื่อโครงการ:</strong> <span id="nameOutput"></span></p>
       <p><strong>ค่าแรง (65%):</strong> <span id="labor"></span> บาท</p>

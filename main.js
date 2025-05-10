@@ -13,22 +13,7 @@ function calculate() {
     return;
   }
 
-  
-  let labor, material, equipment, overhead, profit;
-  if (status === 'actual') {
-    labor = +document.getElementById('inputLabor').value || 0;
-    material = +document.getElementById('inputMaterial').value || 0;
-    equipment = +document.getElementById('inputEquipment').value || 0;
-    overhead = +document.getElementById('inputOverhead').value || 0;
-    profit = +document.getElementById('inputProfit').value || 0;
-  } else {
-    labor = +(value * 0.65).toFixed(2);
-    material = +(value * 0.10).toFixed(2);
-    equipment = +(value * 0.05).toFixed(2);
-    overhead = +(value * 0.10).toFixed(2);
-    profit = +(value * 0.10).toFixed(2);
-  }
-
+  const labor = +(value * 0.65).toFixed(2);
   const material = +(value * 0.10).toFixed(2);
   const equipment = +(value * 0.05).toFixed(2);
   const overhead = +(value * 0.10).toFixed(2);
@@ -116,7 +101,29 @@ function downloadCSV() {
 
 window.onload = renderHistory;
 
-document.getElementById('projectStatus').addEventListener('change', function() {
-  const show = this.value === 'actual';
-  document.getElementById('actualInputs').style.display = show ? 'block' : 'none';
-});
+function saveWithActual() {
+  const name = document.getElementById('projectName').value.trim();
+  const value = parseFloat(document.getElementById('projectValue').value);
+  const labor = parseFloat(document.getElementById('labor').innerText.replace(/,/g, '')) || 0;
+  const material = parseFloat(document.getElementById('material').innerText.replace(/,/g, '')) || 0;
+  const equipment = parseFloat(document.getElementById('equipment').innerText.replace(/,/g, '')) || 0;
+  const overhead = parseFloat(document.getElementById('overhead').innerText.replace(/,/g, '')) || 0;
+  const profit = parseFloat(document.getElementById('profit').innerText.replace(/,/g, '')) || 0;
+
+  const actualLabor = +document.getElementById('actualLabor').value || null;
+  const actualMaterial = +document.getElementById('actualMaterial').value || null;
+  const actualEquipment = +document.getElementById('actualEquipment').value || null;
+  const actualOverhead = +document.getElementById('actualOverhead').value || null;
+  const actualProfit = +document.getElementById('actualProfit').value || null;
+
+  const project = {
+    name, value,
+    labor, material, equipment, overhead, profit,
+    actualLabor, actualMaterial, actualEquipment, actualOverhead, actualProfit
+  };
+
+  let history = JSON.parse(localStorage.getItem('projectHistory')) || [];
+  history.push(project);
+  localStorage.setItem('projectHistory', JSON.stringify(history));
+  renderHistory();
+}
