@@ -41,7 +41,10 @@ function saveProject() {
   renderHistory();
 }
 
+
 function renderHistory() {
+  updateSummary();
+
   let history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
   const container = document.getElementById("history");
   container.innerHTML = "";
@@ -69,3 +72,20 @@ function renderHistory() {
 }
 
 window.onload = renderHistory;
+
+function updateSummary() {
+  let history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+  let totalLabor = 0, totalMaterial = 0, totalEquipment = 0, totalOverhead = 0, totalProfit = 0;
+  history.forEach(p => {
+    totalLabor += p.actualLabor || 0;
+    totalMaterial += p.actualMaterial || 0;
+    totalEquipment += p.actualEquipment || 0;
+    totalOverhead += p.actualOverhead || 0;
+    totalProfit += p.actualProfit || 0;
+  });
+  document.getElementById("totalLabor").innerText = formatNumber(totalLabor);
+  document.getElementById("totalMaterial").innerText = formatNumber(totalMaterial);
+  document.getElementById("totalEquipment").innerText = formatNumber(totalEquipment);
+  document.getElementById("totalOverhead").innerText = formatNumber(totalOverhead);
+  document.getElementById("totalProfit").innerText = formatNumber(totalProfit);
+}
