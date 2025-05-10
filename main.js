@@ -1,17 +1,25 @@
-// main.js
-
 document.addEventListener("DOMContentLoaded", () => {
-  const projectNameInput = document.getElementById("projectName");
-  const projectValueInput = document.getElementById("projectValue");
-  const resultDiv = document.getElementById("result");
-  const historyTableBody = document.querySelector("#historyTable tbody");
-  const summaryDiv = document.getElementById("summary");
+  const $ = selector => document.querySelector(selector);
+  const resultDiv = $("#result");
+  const summaryDiv = $("#summary");
+  const tbody = $("#historyTable tbody");
+  const ctx = document.getElementById("summaryChart").getContext("2d");
 
-  function format(number) {
-    return number.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  let chart;
+
+  function format(n) {
+    return n.toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  function calculateBudget(value) {
+  function getProjects() {
+    return JSON.parse(localStorage.getItem("projects") || "[]");
+  }
+
+  function saveProjects(data) {
+    localStorage.setItem("projects", JSON.stringify(data));
+  }
+
+  function calculate(value) {
     return {
       labor: value * 0.65,
       material: value * 0.10,
@@ -21,93 +29,121 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function renderHistory() {
-    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-    historyTableBody.innerHTML = "";
+  function render() {
+    const data = getProjects();
+    tbody.innerHTML = "";
 
-    data.forEach((project, index) => {
-      const row1 = document.createElement("tr");
-      row1.innerHTML = `
-        <td rowspan="2">${project.name}</td>
-        <td>${format(project.budget.labor)}</td>
-        <td>${format(project.budget.material)}</td>
-        <td>${format(project.budget.equipment)}</td>
-        <td>${format(project.budget.overhead)}</td>
-        <td>${format(project.budget.profit)}</td>
-        <td rowspan="2"><button onclick="deleteProject(${index})">ลบ</button></td>
+    data.forEach((p, i) => {
+      const actual = p.actual || { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${p.name}</td>
+        <td>${format(p.budget.labor)}</td>
+        <td>${format(p.budget.material)}</td>
+        <td>${format(p.budget.equipment)}</td>
+        <td>${format(p.budget.overhead)}</td>
+        <td>${format(p.budget.profit)}</td>
+        <td><input type="number" value="${actual.labor}" onchange="updateActual(${i}, 'labor', this.value)"></td>
+        <td><input type="number" value="${actual.material}" onchange="updateActual(${i}, 'material', this.value)"></td>
+        <td><input type="number" value="${actual.equipment}" onchange="updateActual(${i}, 'equipment', this.value)"></td>
+        <td><input type="number" value="${actual.overhead}" onchange="updateActual(${i}, 'overhead', this.value)"></td>
+        <td><input type="number" value="${actual.profit}" onchange="updateActual(${i}, 'profit', this.value)"></td>
+        <td><button onclick="deleteProject(${i})">X</button></td>
       `;
-      historyTableBody.appendChild(row1);
-
-      const actual = project.actual || { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
-      const row2 = document.createElement("tr");
-      row2.innerHTML = `
-        <td><input type="number" value="${actual.labor}" onchange="updateActual(${index}, 'labor', this.value)"></td>
-        <td><input type="number" value="${actual.material}" onchange="updateActual(${index}, 'material', this.value)"></td>
-        <td><input type="number" value="${actual.equipment}" onchange="updateActual(${index}, 'equipment', this.value)"></td>
-        <td><input type="number" value="${actual.overhead}" onchange="updateActual(${index}, 'overhead', this.value)"></td>
-        <td><input type="number" value="${actual.profit}" onchange="updateActual(${index}, 'profit', this.value)"></td>
-      `;
-      historyTableBody.appendChild(row2);
+      tbody.appendChild(row);
     });
+
+    renderSummary();
   }
 
   function renderSummary() {
-    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-    let sum = { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
+    const data = getProjects();
+    const sum = { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0 };
 
     data.forEach(p => {
       if (p.actual) {
-        sum.labor += p.actual.labor || 0;
-        sum.material += p.actual.material || 0;
-        sum.equipment += p.actual.equipment || 0;
-        sum.overhead += p.actual.overhead || 0;
-        sum.profit += p.actual.profit || 0;
+        sum.labor += +p.actual.labor;
+        sum.material += +p.actual.material;
+        sum.equipment += +p.actual.equipment;
+        sum.overhead += +p.actual.overhead;
+        sum.profit += +p.actual.profit;
       }
     });
 
     summaryDiv.innerHTML = `
-      <h3>ยอด Actual Cost สะสม</h3>
-      <p>ค่าแรง: ${format(sum.labor)}</p>
-      <p>วัสดุสิ้นเปลือง: ${format(sum.material)}</p>
-      <p>อุปกรณ์ช่วย: ${format(sum.equipment)}</p>
+      <p>Labor: ${format(sum.labor)}</p>
+      <p>Material: ${format(sum.material)}</p>
+      <p>Equipment: ${format(sum.equipment)}</p>
       <p>Overhead: ${format(sum.overhead)}</p>
-      <p>กำไร: ${format(sum.profit)}</p>
+      <p>Profit: ${format(sum.profit)}</p>
     `;
+
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["Labor", "Material", "Equipment", "Overhead", "Profit"],
+        datasets: [{
+          label: "Actual Cost Summary",
+          data: [sum.labor, sum.material, sum.equipment, sum.overhead, sum.profit],
+          backgroundColor: ["#007bff", "#28a745", "#ffc107", "#17a2b8", "#dc3545"]
+        }]
+      }
+    });
   }
 
-  document.getElementById("calculateBtn").addEventListener("click", () => {
-    const name = projectNameInput.value.trim();
-    const value = parseFloat(projectValueInput.value);
-    if (!name || isNaN(value)) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-
-    const budget = calculateBudget(value);
-
-    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+  $("#calculateBtn").onclick = () => {
+    const name = $("#projectName").value.trim();
+    const value = parseFloat($("#projectValue").value);
+    if (!name || isNaN(value)) return alert("Fill name and value");
+    const budget = calculate(value);
+    const data = getProjects();
     data.push({ name, value, budget });
-    localStorage.setItem("projectHistory", JSON.stringify(data));
+    saveProjects(data);
+    $("#projectName").value = "";
+    $("#projectValue").value = "";
+    render();
+  };
 
-    projectNameInput.value = "";
-    projectValueInput.value = "";
-    renderHistory();
-    renderSummary();
+  $("#searchInput").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+    [...tbody.rows].forEach(row => {
+      row.style.display = row.cells[0].textContent.toLowerCase().includes(q) ? "" : "none";
+    });
   });
 
-  window.updateActual = function(index, field, value) {
-    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-    if (!data[index].actual) data[index].actual = {};
-    data[index].actual[field] = parseFloat(value) || 0;
-    localStorage.setItem("projectHistory", JSON.stringify(data));
-    renderSummary();
+  $("#exportBtn").onclick = () => {
+    const data = getProjects();
+    let csv = "Name, Labor, Material, Equipment, Overhead, Profit, A_Labor, A_Material, A_Equipment, A_Overhead, A_Profit\n";
+    data.forEach(p => {
+      const a = p.actual || {};
+      csv += `${p.name},${p.budget.labor},${p.budget.material},${p.budget.equipment},${p.budget.overhead},${p.budget.profit},${a.labor||0},${a.material||0},${a.equipment||0},${a.overhead||0},${a.profit||0}\n`;
+    });
+    const blob = new Blob([csv], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "projects.csv";
+    link.click();
   };
 
-  window.deleteProject = function(index) {
-    const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
-    data.splice(index, 1);
-    localStorage.setItem("projectHistory", JSON.stringify(data));
-    renderHistory();
-    renderSummary();
+  $("#languageSelect").onchange = () => {
+    alert("Demo only: ระบบยังไม่รองรับการแปลภาษาแบบเต็มรูปแบบ");
   };
 
-  renderHistory();
-  renderSummary();
+  window.updateActual = (i, field, val) => {
+    const data = getProjects();
+    if (!data[i].actual) data[i].actual = {};
+    data[i].actual[field] = parseFloat(val) || 0;
+    saveProjects(data);
+    render();
+  };
+
+  window.deleteProject = i => {
+    const data = getProjects();
+    data.splice(i, 1);
+    saveProjects(data);
+    render();
+  };
+
+  render();
 });
