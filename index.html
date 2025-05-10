@@ -1,41 +1,57 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Management</title>
+  <title>ระบบบริหารจัดการงบประมาณโครงการ</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>ระบบบริหารจัดการงบประมาณโครงการ</h1>
-    <label>ชื่อโครงการ <input id="projectName" type="text" /></label>
-    <label>มูลค่าโครงการ <input id="projectValue" type="number" /></label>
-    <button onclick="calculate()">คำนวณ</button>
+    <div class="form-group">
+      <label>ชื่อโครงการ</label>
+      <input type="text" id="projectName">
+      <label>มูลค่าโครงการ</label>
+      <input type="number" id="projectValue">
+      <button onclick="calculateBudget()">คำนวณ</button>
+    </div>
 
     <h2>ประวัติโครงการ</h2>
-    <table id="historyTable" border="1">
-      <thead>
-        <tr>
-          <th rowspan="2">Project</th>
-          <th colspan="5">Budget</th>
-          <th colspan="5">Actual</th>
-          <th rowspan="2">Actions</th>
-        </tr>
-        <tr>
-          <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
-          <th>Labor</th><th>Material</th><th>Equip</th><th>Overhead</th><th>Profit</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="table-wrapper">
+      <table id="projectTable">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th colspan="5">Budget</th>
+            <th colspan="5">Actual</th>
+            <th>Actions</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th>Labor</th>
+            <th>Material</th>
+            <th>Equip</th>
+            <th>Overhead</th>
+            <th>Profit</th>
+            <th>Labor</th>
+            <th>Material</th>
+            <th>Equip</th>
+            <th>Overhead</th>
+            <th>Profit</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="projectTableBody">
+        </tbody>
+      </table>
+    </div>
 
     <h3>กราฟแสดงยอด Actual Cost สะสม</h3>
     <canvas id="actualChart" width="400" height="200"></canvas>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="main.js"></script>
 </body>
 </html>
