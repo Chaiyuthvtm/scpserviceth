@@ -1,22 +1,21 @@
+
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>ระบบบริหารจัดการงบประมาณโครงการ</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
 <body>
   <div class="container">
     <h1>ระบบบริหารจัดการงบประมาณโครงการ</h1>
     <div class="form-group">
       <label>ชื่อโครงการ</label>
-      <input type="text" id="projectName">
+      <input type="text" id="projectName" />
       <label>มูลค่าโครงการ</label>
-      <input type="number" id="projectValue">
+      <input type="number" id="projectValue" />
       <button onclick="calculateBudget()">คำนวณ</button>
     </div>
 
@@ -45,22 +44,14 @@
             <th></th>
           </tr>
         </thead>
-        <tbody id="projectTableBody">
-        </tbody>
+        <tbody id="projectTableBody"></tbody>
       </table>
     </div>
 
-    <h3>กราฟวงกลมแสดงสัดส่วนยอด Actual Cost สะสม</h3>
-    <canvas id="actualPieChart" width="400" height="200"></canvas>
-
-    <h3>รายงานสรุปยอด Actual Cost สะสม</h3>
-    <div id="actualSummaryReport">
-      <!-- รายงานสรุปจะแสดงผลที่นี่ -->
-    </div>
+    <h3>กราฟแสดงยอด Actual Cost สะสม</h3>
+    <canvas id="actualChart" width="400" height="200"></canvas>
   </div>
 
   <script src="main.js"></script>
-  <link rel="stylesheet" href="style.css">
 </body>
-
 </html>
