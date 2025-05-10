@@ -1,37 +1,25 @@
 
 body {
   font-family: sans-serif;
-  padding: 20px;
+  margin: 20px;
 }
 .container {
   max-width: 800px;
   margin: auto;
 }
-input[type=number], input[type=text] {
-  width: 100%;
-  margin: 5px 0 15px;
-}
-button {
-  padding: 10px 20px;
-  margin-bottom: 20px;
+input {
+  margin: 5px;
 }
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 th, td {
-  padding: 10px;
+  border: 1px solid #ccc;
+  padding: 5px;
   text-align: center;
 }
-th {
-  background-color: #f0f0f0;
-}
-td.over {
-  color: red;
-  font-weight: bold;
-}
-td.under {
-  color: green;
-  font-weight: bold;
+.hidden {
+  display: none;
 }
