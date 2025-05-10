@@ -1,38 +1,31 @@
 
 body {
-  font-family: sans-serif;
-  padding: 20px;
+    font-family: sans-serif;
+    padding: 20px;
+    background-color: #f0f0f0;
 }
 .container {
-  max-width: 1000px;
-  margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+}
+.section {
+    margin-top: 20px;
 }
 table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
 }
 th, td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-}
-input[type="number"] {
-  width: 100px;
-}
-input[type="text"] {
-  width: 200px;
-}
-button {
-  padding: 6px 12px;
-  margin-left: 10px;
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
 }
 .red {
-  color: red;
+    color: red;
+    font-weight: bold;
 }
 .green {
-  color: green;
-}
-.bold {
-  font-weight: bold;
+    color: green;
+    font-weight: bold;
 }
