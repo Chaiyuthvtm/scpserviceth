@@ -1,59 +1,100 @@
 
+function formatNumber(num) {
+  return Number(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 function calculateBudget() {
-  const projectName = document.getElementById("projectName").value;
-  const projectValue = parseFloat(document.getElementById("projectValue").value);
-  if (!projectName || isNaN(projectValue)) {
-    alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+  const name = document.getElementById("projectName").value.trim();
+  const value = parseFloat(document.getElementById("projectValue").value);
+  if (!name || isNaN(value)) {
+    alert("กรุณากรอกชื่อและมูลค่าโครงการให้ครบถ้วน");
     return;
   }
 
-  const labor = (projectValue * 0.65).toFixed(2);
-  const material = (projectValue * 0.10).toFixed(2);
-  const equip = (projectValue * 0.05).toFixed(2);
-  const overhead = (projectValue * 0.10).toFixed(2);
-  const profit = (projectValue * 0.10).toFixed(2);
+  const labor = value * 0.65;
+  const material = value * 0.10;
+  const equip = value * 0.05;
+  const overhead = value * 0.10;
+  const profit = value * 0.10;
 
-  const tableBody = document.getElementById("projectTableBody");
+  const project = {
+    name, value,
+    budget: { labor, material, equip, overhead, profit },
+    actual: { labor: 0, material: 0, equip: 0, overhead: 0, profit: 0 }
+  };
+
+  addProjectRow(project);
+  updateSummary();
+}
+
+function addProjectRow(project) {
+  const tbody = document.getElementById("projectTableBody");
   const row = document.createElement("tr");
 
-  row.innerHTML = `
-    <td>${projectName}</td>
-    <td>${labor}</td>
-    <td>${material}</td>
-    <td>${equip}</td>
-    <td>${overhead}</td>
-    <td>${profit}</td>
-    <td><input type="number" class="actual-input" data-type="labor" value="0" /></td>
-    <td><input type="number" class="actual-input" data-type="material" value="0" /></td>
-    <td><input type="number" class="actual-input" data-type="equip" value="0" /></td>
-    <td><input type="number" class="actual-input" data-type="overhead" value="0" /></td>
-    <td><input type="number" class="actual-input" data-type="profit" value="0" /></td>
-    <td><button onclick="updateSummary()">ลง</button></td>
-  `;
+  function createCell(content, isActual = false, budgetVal = 0) {
+    const td = document.createElement("td");
+    if (typeof content === "string" || typeof content === "number") {
+      td.textContent = typeof content === "number" ? formatNumber(content) : content;
+    } else {
+      td.appendChild(content);
+    }
 
-  tableBody.appendChild(row);
+    if (isActual && content.tagName === 'INPUT') {
+      content.addEventListener("input", () => {
+        const value = parseFloat(content.value) || 0;
+        if (value > budgetVal) {
+          content.classList.add("red-text");
+        } else {
+          content.classList.remove("red-text");
+        }
+        updateSummary();
+      });
+    }
+
+    return td;
+  }
+
+  row.appendChild(createCell(project.name));
+  Object.values(project.budget).forEach(val => row.appendChild(createCell(val)));
+
+  Object.entries(project.budget).forEach(([key, budgetVal]) => {
+    const input = document.createElement("input");
+    input.type = "number";
+    input.value = 0;
+    input.className = "actual-input";
+    row.appendChild(createCell(input, true, budgetVal));
+  });
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "ลบ";
+  deleteBtn.onclick = () => {
+    row.remove();
+    updateSummary();
+  };
+  row.appendChild(createCell(deleteBtn));
+
+  tbody.appendChild(row);
 }
 
 function updateSummary() {
-  const summary = {
-    labor: 0,
-    material: 0,
-    equip: 0,
-    overhead: 0,
-    profit: 0
-  };
-
   const inputs = document.querySelectorAll(".actual-input");
-  inputs.forEach(input => {
-    const type = input.dataset.type;
-    summary[type] += parseFloat(input.value) || 0;
+  const categories = ["labor", "material", "equip", "overhead", "profit"];
+  const summary = { labor: 0, material: 0, equip: 0, overhead: 0, profit: 0 };
+
+  inputs.forEach((input, index) => {
+    const key = categories[index % 5];
+    summary[key] += parseFloat(input.value) || 0;
   });
 
-  document.getElementById("summaryReport").innerHTML = `
-    <p>รวมค่าแรง: ${summary.labor.toFixed(2)} บาท</p>
-    <p>รวมวัสดุสิ้นเปลือง: ${summary.material.toFixed(2)} บาท</p>
-    <p>รวมอุปกรณ์ช่วย: ${summary.equip.toFixed(2)} บาท</p>
-    <p>รวม Overhead: ${summary.overhead.toFixed(2)} บาท</p>
-    <p>รวมกำไร: ${summary.profit.toFixed(2)} บาท</p>
+  const report = `
+    <p><strong>ยอดสะสม Actual Cost:</strong></p>
+    <ul>
+      <li>ค่าแรง: ${formatNumber(summary.labor)} บาท</li>
+      <li>วัสดุสิ้นเปลือง: ${formatNumber(summary.material)} บาท</li>
+      <li>อุปกรณ์ช่วย: ${formatNumber(summary.equip)} บาท</li>
+      <li>Overhead: ${formatNumber(summary.overhead)} บาท</li>
+      <li>กำไร: ${formatNumber(summary.profit)} บาท</li>
+    </ul>
   `;
+  document.getElementById("summaryReport").innerHTML = report;
 }
