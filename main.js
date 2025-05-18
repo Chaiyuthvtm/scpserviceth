@@ -1,90 +1,67 @@
 
-let projects = [];
+document.addEventListener("DOMContentLoaded", () => {
+    const calculateBtn = document.getElementById("calculateBtn");
+    const projectNameInput = document.getElementById("projectName");
+    const projectValueInput = document.getElementById("projectValue");
+    const resultDiv = document.getElementById("result");
+    const historyTable = document.getElementById("historyTable").querySelector("tbody");
 
-function addProject() {
-    const name = document.getElementById("projectName").value;
-    const value = parseFloat(document.getElementById("projectValue").value);
-    if (!name || isNaN(value)) {
-        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-        return;
+    function format(num) {
+        return Number(num).toLocaleString("th-TH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
-    const budget = {
-        labor: value * 0.65,
-        material: value * 0.10,
-        equipment: value * 0.05,
-        overhead: value * 0.10,
-        profit: value * 0.10,
-    };
-    budget.total = Object.values(budget).reduce((a, b) => a + b, 0);
 
-    const actual = {
-        labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0, total: 0
-    };
-
-    projects.push({ name, value, budget, actual });
-    renderProjects();
-}
-
-function updateActual(index, key, val) {
-    const num = parseFloat(val);
-    if (!isNaN(num)) {
-        projects[index].actual[key] = num;
-        const a = projects[index].actual;
-        a.total = a.labor + a.material + a.equipment + a.overhead + a.profit;
-        renderProjects();
-    }
-}
-
-function removeProject(index) {
-    projects.splice(index, 1);
-    renderProjects();
-}
-
-function renderProjects() {
-    const history = document.getElementById("projectHistory");
-    history.innerHTML = "<h2>ประวัติโครงการ</h2>";
-    projects.forEach((p, i) => {
-        let html = \`<div><strong>\${p.name}</strong> (\${p.value} บาท)
-            <button onclick="removeProject(\${i})">ลบ</button>
-            <table><tr><th>รายการ</th><th>งบประมาณ</th><th>ค่าใช้จ่ายจริง</th></tr>\`;
-        const keys = ["labor", "material", "equipment", "overhead", "profit", "total"];
-        keys.forEach(k => {
-            let style = "";
-            if (k !== "profit" && k !== "total" && p.actual[k] > p.budget[k]) style = "red";
-            if (k === "profit" && p.actual[k] > p.budget[k]) style = "green";
-            if (k === "profit" && p.actual[k] < p.budget[k]) style = "red";
-            html += \`<tr>
-                        <td>\${k}</td>
-                        <td>\${p.budget[k].toFixed(2)}</td>
-                        <td><input type="number" value="\${p.actual[k]}" 
-                        onchange="updateActual(\${i}, '\${k}', this.value)" class="\${style}"></td>
-                      </tr>\`;
+    function loadHistory() {
+        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        historyTable.innerHTML = "";
+        data.forEach((item, index) => {
+            const row = historyTable.insertRow();
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${format(item.value)}</td>
+                <td>${format(item.labor)}</td>
+                <td>${format(item.material)}</td>
+                <td>${format(item.equipment)}</td>
+                <td>${format(item.overhead)}</td>
+                <td>${format(item.profit)}</td>
+                <td><button onclick="deleteProject(${index})">ลบ</button></td>
+            `;
         });
-        html += "</table></div><br>";
-        history.innerHTML += html;
-    });
-
-    // Summary
-    const summary = document.getElementById("summaryReport");
-    const totalBudget = { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0, total: 0 };
-    const totalActual = { labor: 0, material: 0, equipment: 0, overhead: 0, profit: 0, total: 0 };
-
-    projects.forEach(p => {
-        if (p.actual.total > 0) {
-            for (let key in totalBudget) totalBudget[key] += p.budget[key];
-            for (let key in totalActual) totalActual[key] += p.actual[key];
-        }
-    });
-
-    let summaryHtml = "<h2>รายงานสรุป</h2><table><tr><th>รายการ</th><th>งบประมาณรวม</th><th>Actual รวม</th></tr>";
-    for (let key in totalBudget) {
-        let style = "";
-        if (key !== "profit" && totalActual[key] > totalBudget[key]) style = "red";
-        if (key === "profit" && totalActual[key] > totalBudget[key]) style = "green";
-        if (key === "profit" && totalActual[key] < totalBudget[key]) style = "red";
-        summaryHtml += \`<tr><td>\${key}</td><td>\${totalBudget[key].toFixed(2)}</td>
-                         <td class="\${style}">\${totalActual[key].toFixed(2)}</td></tr>\`;
     }
-    summaryHtml += "</table>";
-    summary.innerHTML = summaryHtml;
-}
+
+    window.deleteProject = function(index) {
+        const data = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        data.splice(index, 1);
+        localStorage.setItem("projectHistory", JSON.stringify(data));
+        loadHistory();
+    };
+
+    calculateBtn.addEventListener("click", () => {
+        const name = projectNameInput.value.trim();
+        const value = parseFloat(projectValueInput.value);
+        if (!name || isNaN(value)) {
+            alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+            return;
+        }
+
+        const labor = value * 0.65;
+        const material = value * 0.10;
+        const equipment = value * 0.05;
+        const overhead = value * 0.10;
+        const profit = value * 0.10;
+
+        resultDiv.innerHTML = `
+            <p>ค่าแรง: ${format(labor)}</p>
+            <p>วัสดุสิ้นเปลือง: ${format(material)}</p>
+            <p>อุปกรณ์ช่วย: ${format(equipment)}</p>
+            <p>Overhead: ${format(overhead)}</p>
+            <p>กำไร: ${format(profit)}</p>
+        `;
+
+        const history = JSON.parse(localStorage.getItem("projectHistory") || "[]");
+        history.push({ name, value, labor, material, equipment, overhead, profit });
+        localStorage.setItem("projectHistory", JSON.stringify(history));
+        loadHistory();
+    });
+
+    loadHistory();
+});

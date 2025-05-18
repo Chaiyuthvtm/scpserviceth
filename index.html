@@ -1,24 +1,36 @@
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบติดตามค่าใช้จ่ายโครงการ</title>
+    <title>โครงการ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>ระบบติดตามค่าใช้จ่ายโครงการ</h1>
-        <div class="section">
-            <h2>เพิ่มโครงการ</h2>
-            <label>ชื่อโครงการ: <input type="text" id="projectName"></label><br>
-            <label>มูลค่าโครงการ: <input type="number" id="projectValue"></label><br>
-            <button onclick="addProject()">เพิ่มโครงการ</button>
-        </div>
-        <div class="section" id="projectHistory"></div>
-        <div class="section" id="summaryReport"></div>
-    </div>
+    <h1>ข้อมูลโครงการ</h1>
+    <label>ชื่อโครงการ: <input type="text" id="projectName"></label><br>
+    <label>มูลค่าโครงการ: <input type="number" id="projectValue" step="0.01"></label><br>
+    <button id="calculateBtn">คำนวณ</button>
+
+    <h2>สรุปงบประมาณ</h2>
+    <div id="result"></div>
+
+    <h2>ประวัติโครงการ</h2>
+    <table id="historyTable" border="1">
+        <thead>
+            <tr>
+                <th>ชื่อโครงการ</th>
+                <th>มูลค่า</th>
+                <th>ค่าแรง</th>
+                <th>วัสดุ</th>
+                <th>อุปกรณ์</th>
+                <th>Overhead</th>
+                <th>กำไร</th>
+                <th>ลบ</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
     <script src="main.js"></script>
 </body>
 </html>
